@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "source": "movil/lib/data/demo_repository.dart::_seed",
+  "users": [
+    {"alias":"u1","full_name":"Ana Torres","email":"a.torres@example.com","role":"ADMIN","specialty":"Arquitectura de soluciones","avatar_color":"#4C8DFF"},
+    {"alias":"u2","full_name":"Luis Vega","email":"l.vega@example.com","role":"TEAM_LEADER","specialty":"Backend · Líder equipo Pagos","avatar_color":"#8B7CF6"},
+    {"alias":"u3","full_name":"Diego Ramos","email":"d.ramos@example.com","role":"DEVELOPER","specialty":"Frontend · Vue / TypeScript","avatar_color":"#2FBF71"},
+    {"alias":"u4","full_name":"Sofía Márquez","email":"s.marquez@example.com","role":"DEVELOPER","specialty":"Full-stack · Integraciones","avatar_color":"#F2A93B"},
+    {"alias":"u5","full_name":"Marco Ibáñez","email":"m.ibanez@example.com","role":"DEVELOPER","specialty":"QA · Automatización","avatar_color":"#F0554E"}
+  ],
+  "applications": [
+    {"alias":"a1","name":"Portal Clientes","color":"#4C8DFF","icon":"PC"},
+    {"alias":"a2","name":"API Pagos","color":"#2FBF71","icon":"AP"},
+    {"alias":"a3","name":"App Logística","color":"#8B7CF6","icon":"AL"}
+  ],
+  "epics": [
+    {"alias":"e1","application_id":"a1","title":"Autenticación y seguridad","order_index":0},
+    {"alias":"e2","application_id":"a1","title":"Panel de autogestión","order_index":1},
+    {"alias":"e3","application_id":"a2","title":"Conciliación bancaria","order_index":0},
+    {"alias":"e4","application_id":"a2","title":"Webhooks de pago","order_index":1},
+    {"alias":"e5","application_id":"a3","title":"Seguimiento de flotas","order_index":0}
+  ],
+  "tickets": [
+    {
+      "alias":"t1","beta_number":132,"beta_status":"IN_PROGRESS","epic_id":"e1","order_index":0,
+      "title":"Implementar login con doble factor (TOTP)",
+      "description":"Añadir verificación TOTP tras la contraseña. Incluir códigos de respaldo y flujo de recuperación. Criterio de aceptación: compatible con Google Authenticator y 1Password.",
+      "status":"IN_PROGRESS","priority":"HIGH","assignee_id":"u3","created_by_id":"u2",
+      "created_offset":-345600,"due_offset":172800,"time_spent_seconds":16440,"blocked_time_seconds":2100,
+      "original_spent_seconds":15720,"consolidated_seconds":720
+    },
+    {
+      "alias":"t2","beta_number":128,"beta_status":"BLOCKED","epic_id":"e1","order_index":1,
+      "title":"Bloqueo de cuenta tras 5 intentos fallidos",
+      "description":"Política de bloqueo temporal (15 min) con aviso por correo al usuario.",
+      "status":"BLOCKED_QUESTION","priority":"MEDIUM","assignee_id":"u4","created_by_id":"u2",
+      "created_offset":-518400,"due_offset":86400,"time_spent_seconds":7800,"blocked_time_seconds":10800,
+      "block_reason":"¿El bloqueo aplica también a los accesos por API o solo al portal web?","blocked_offset":-18000
+    },
+    {
+      "alias":"t3","beta_number":141,"beta_status":"TODO","epic_id":"e2","order_index":0,
+      "title":"Descarga de facturas en PDF desde el panel",
+      "description":"El cliente debe poder descargar sus últimas 24 facturas en PDF con firma digital.",
+      "status":"TODO","priority":"MEDIUM","assignee_id":null,"created_by_id":"u1",
+      "created_offset":-172800,"due_offset":518400,"time_spent_seconds":0,"blocked_time_seconds":0
+    },
+    {
+      "alias":"t4","beta_number":139,"beta_status":"DONE","epic_id":"e2","order_index":1,
+      "title":"Editar datos fiscales con validación de NIF/CIF",
+      "description":"Formulario de datos fiscales con validación en tiempo real y verificación contra el censo.",
+      "status":"COMPLETED","priority":"LOW","assignee_id":"u5","created_by_id":"u2",
+      "created_offset":-777600,"due_offset":-86400,"completed_offset":-86400,
+      "time_spent_seconds":24300,"blocked_time_seconds":0,"pr_link":"https://github.com/wellq/portal/pull/412"
+    },
+    {
+      "alias":"t5","beta_number":145,"beta_status":"IN_PROGRESS","epic_id":"e3","order_index":0,
+      "title":"Matching automático de transferencias SEPA",
+      "description":"Cruce automático de transferencias entrantes contra facturas pendientes usando referencia estructurada. Tolerancia de ±0,01 €.",
+      "status":"IN_PROGRESS","priority":"URGENT","assignee_id":"u4","created_by_id":"u2",
+      "created_offset":-691200,"due_offset":-86400,"time_spent_seconds":33120,"blocked_time_seconds":3300
+    },
+    {
+      "alias":"t6","beta_number":143,"beta_status":"TODO","epic_id":"e3","order_index":1,
+      "title":"Alertas de descuadre superior a 50 €",
+      "description":"Notificar al equipo de finanzas cuando el descuadre diario supere el umbral configurable.",
+      "status":"TODO","priority":"HIGH","assignee_id":"u3","created_by_id":"u1",
+      "created_offset":-259200,"due_offset":345600,"time_spent_seconds":0,"blocked_time_seconds":0
+    },
+    {
+      "alias":"t7","beta_number":137,"beta_status":"REDIRECTED","epic_id":"e4","order_index":0,
+      "title":"Reintentos exponenciales en webhooks fallidos",
+      "description":"Hasta 6 reintentos con backoff exponencial y firma HMAC en cada entrega.",
+      "status":"TODO","priority":"HIGH","assignee_id":"u3","created_by_id":"u2",
+      "created_offset":-604800,"due_offset":259200,"time_spent_seconds":5400,"blocked_time_seconds":0
+    },
+    {
+      "alias":"t8","beta_number":146,"beta_status":"IN_PROGRESS","epic_id":"e5","order_index":0,
+      "title":"Mapa en vivo con posiciones GPS cada 30 s",
+      "description":"Websocket con posiciones de la flota y clustering de marcadores en el mapa.",
+      "status":"IN_PROGRESS","priority":"MEDIUM","assignee_id":"u5","created_by_id":"u1",
+      "created_offset":-432000,"due_offset":777600,"time_spent_seconds":11100,"blocked_time_seconds":0
+    },
+    {
+      "alias":"t9","beta_number":134,"beta_status":"TODO","epic_id":"e5","order_index":1,
+      "title":"Firma digital de albaranes en la entrega",
+      "description":"Captura de firma táctil y foto del paquete como prueba de entrega.",
+      "status":"TODO","priority":"LOW","assignee_id":null,"created_by_id":"u1",
+      "created_offset":-86400,"due_offset":1209600,"time_spent_seconds":0,"blocked_time_seconds":0
+    }
+  ],
+  "subtasks": [
+    {"alias":"s1","ticket_id":"t1","order_index":0,"title":"Pantalla de enrolamiento TOTP","is_completed":true},
+    {"alias":"s2","ticket_id":"t1","order_index":1,"title":"Validación de código de 6 dígitos","is_completed":true},
+    {"alias":"s3","ticket_id":"t1","order_index":2,"title":"Códigos de respaldo descargables","is_completed":false},
+    {"alias":"s4","ticket_id":"t1","order_index":3,"title":"Tests E2E del flujo completo","is_completed":false},
+    {"alias":"s5","ticket_id":"t2","order_index":0,"title":"Contador de intentos en Redis","is_completed":true},
+    {"alias":"s6","ticket_id":"t2","order_index":1,"title":"Plantilla de correo de aviso","is_completed":false},
+    {"alias":"s7","ticket_id":"t3","order_index":0,"title":"Endpoint GET /invoices/:id/pdf","is_completed":false},
+    {"alias":"s8","ticket_id":"t3","order_index":1,"title":"Listado con paginación","is_completed":false},
+    {"alias":"s9","ticket_id":"t4","order_index":0,"title":"Validador NIF/CIF","is_completed":true},
+    {"alias":"s10","ticket_id":"t4","order_index":1,"title":"Mensajes de error accesibles","is_completed":true},
+    {"alias":"s11","ticket_id":"t5","order_index":0,"title":"Parser de extractos CAMT.053","is_completed":true},
+    {"alias":"s12","ticket_id":"t5","order_index":1,"title":"Motor de matching por referencia","is_completed":true},
+    {"alias":"s13","ticket_id":"t5","order_index":2,"title":"Cola de revisión manual","is_completed":false},
+    {"alias":"s14","ticket_id":"t5","order_index":3,"title":"Informe diario de no conciliados","is_completed":false},
+    {"alias":"s15","ticket_id":"t6","order_index":0,"title":"Umbral configurable por app","is_completed":false},
+    {"alias":"s16","ticket_id":"t7","order_index":0,"title":"Scheduler de reintentos","is_completed":true},
+    {"alias":"s17","ticket_id":"t7","order_index":1,"title":"Panel de entregas fallidas","is_completed":false},
+    {"alias":"s18","ticket_id":"t8","order_index":0,"title":"Canal WS /fleet/positions","is_completed":true},
+    {"alias":"s19","ticket_id":"t8","order_index":1,"title":"Clustering de marcadores","is_completed":false},
+    {"alias":"s20","ticket_id":"t8","order_index":2,"title":"Modo ahorro de datos","is_completed":false}
+  ],
+  "ticket_events": [
+    {"alias":"t1/evento/0","ticket_id":"t1","user_id":"u2","event_type":"CREATED","created_offset":-345600,"detail":{}},
+    {"alias":"t1/evento/1","ticket_id":"t1","user_id":"u2","event_type":"ASSIGNED","to_user_id":"u3","created_offset":-345600,"detail":{"to_user_id":"u3"}},
+    {"alias":"t1/evento/2","ticket_id":"t1","user_id":"u3","event_type":"STATUS_CHANGED","beta_type":"STATUS","created_offset":-259200,"detail":{"from_status":"TODO","to_status":"IN_PROGRESS"}},
+    {"alias":"t1/evento/3","ticket_id":"t1","user_id":"u2","event_type":"COMMENT","created_offset":-86400,"detail":{"message":"Prioriza la compatibilidad con 1Password, lo pidió el cliente."}},
+    {"alias":"t2/evento/0","ticket_id":"t2","user_id":"u2","event_type":"CREATED","created_offset":-518400,"detail":{}},
+    {"alias":"t2/evento/1","ticket_id":"t2","user_id":"u2","event_type":"ASSIGNED","to_user_id":"u4","created_offset":-518400,"detail":{"to_user_id":"u4"}},
+    {"alias":"t2/evento/2","ticket_id":"t2","user_id":"u4","event_type":"QUESTION_RAISED","beta_type":"QUESTION","created_offset":-18000,"detail":{"question":"¿El bloqueo aplica también a los accesos por API o solo al portal web?"}},
+    {"alias":"t3/evento/0","ticket_id":"t3","user_id":"u1","event_type":"CREATED","created_offset":-172800,"detail":{}},
+    {"alias":"t4/evento/0","ticket_id":"t4","user_id":"u2","event_type":"CREATED","created_offset":-777600,"detail":{}},
+    {"alias":"t4/evento/1","ticket_id":"t4","user_id":"u5","event_type":"COMPLETED","created_offset":-86400,"detail":{"pr_link":"https://github.com/wellq/portal/pull/412"}},
+    {"alias":"t5/evento/0","ticket_id":"t5","user_id":"u2","event_type":"CREATED","created_offset":-691200,"detail":{}},
+    {"alias":"t5/evento/1","ticket_id":"t5","user_id":"u2","event_type":"ASSIGNED","to_user_id":"u4","created_offset":-691200,"detail":{"to_user_id":"u4"}},
+    {"alias":"t6/evento/0","ticket_id":"t6","user_id":"u1","event_type":"CREATED","created_offset":-259200,"detail":{}},
+    {"alias":"t6/evento/1","ticket_id":"t6","user_id":"u1","event_type":"ASSIGNED","to_user_id":"u3","created_offset":-259200,"detail":{"to_user_id":"u3"}},
+    {"alias":"t7/evento/0","ticket_id":"t7","user_id":"u2","event_type":"CREATED","created_offset":-604800,"detail":{}},
+    {"alias":"t7/evento/1","ticket_id":"t7","user_id":"u5","event_type":"REDIRECTED","from_user_id":"u5","to_user_id":"u3","created_offset":-172800,"detail":{"to_user_id":"u3","justification":"Necesita conocimiento del front del panel de entregas; Diego lo tiene fresco."}},
+    {"alias":"t8/evento/0","ticket_id":"t8","user_id":"u1","event_type":"CREATED","created_offset":-432000,"detail":{}},
+    {"alias":"t8/evento/1","ticket_id":"t8","user_id":"u1","event_type":"ASSIGNED","to_user_id":"u5","created_offset":-432000,"detail":{"to_user_id":"u5"}},
+    {"alias":"t9/evento/0","ticket_id":"t9","user_id":"u1","event_type":"CREATED","created_offset":-86400,"detail":{}}
+  ],
+  "incidents": [
+    {
+      "alias":"i1","beta_number":57,"beta_category":"CRITICAL_ERROR","beta_severity":"CRITICAL","beta_status":"IN_PROGRESS",
+      "title":"Timeout al conciliar extractos de más de 5 000 líneas",
+      "description":"El proceso de conciliación supera los 30 s y el worker corta la tarea. Ocurre con los extractos de fin de mes de dos clientes grandes.",
+      "application_id":"a2","created_by_id":"u2","assigned_to_id":"u4","status":"INVESTIGATING","severity":"P1","created_offset":-93600,
+      "comments":[{"user_id":"u4","created_offset":-72000,"message":"Reproducido con el extracto de 8 200 líneas. El cuello está en el parser, no en la BD."}]
+    },
+    {
+      "alias":"i2","beta_number":58,"beta_category":"NON_CRITICAL_ERROR","beta_severity":"LOW","beta_status":"OPEN",
+      "title":"El selector de idioma no persiste tras cerrar sesión",
+      "description":"Al volver a entrar, el portal vuelve a español aunque el usuario eligió inglés.",
+      "application_id":"a1","created_by_id":"u3","assigned_to_id":null,"status":"REPORTED","severity":"P3","created_offset":-28800
+    },
+    {
+      "alias":"i3","beta_number":55,"beta_category":"NEW_FEATURE","beta_severity":"MEDIUM","beta_status":"UNDER_REVIEW",
+      "title":"Añadir exportación de movimientos a Excel",
+      "description":"Varios clientes piden exportar el histórico de movimientos a XLSX además del CSV actual.",
+      "application_id":"a1","created_by_id":"u1","assigned_to_id":"u3","status":"REPORTED","severity":"P3","created_offset":-259200
+    },
+    {
+      "alias":"i4","beta_number":52,"beta_category":"USABILITY_ISSUE","beta_severity":"MEDIUM","beta_status":"RESOLVED",
+      "title":"Contraste insuficiente en el mapa nocturno",
+      "description":"Los marcadores grises apenas se distinguen sobre el tema oscuro del mapa.",
+      "application_id":"a3","created_by_id":"u5","assigned_to_id":"u5","status":"RESOLVED","severity":"P3","created_offset":-518400
+    },
+    {
+      "alias":"i5","beta_number":60,"beta_category":"CRITICAL_ERROR","beta_severity":"HIGH","beta_status":"OPEN",
+      "title":"Webhook duplicado cuando el receptor responde 5xx lento",
+      "description":"Si el receptor tarda >10 s y devuelve 502, el evento se entrega dos veces.",
+      "application_id":"a2","created_by_id":"u4","assigned_to_id":null,"status":"REPORTED","severity":"P2","created_offset":-10800
+    }
+  ],
+  "notifications": [
+    {"alias":"demo-0","user_id":"u3","ticket_id":"t6","type":"TICKET_ASSIGNED","title":"Asignación de ticket","message":"Ana Torres te asignó: “Alertas de descuadre superior a 50 €”","created_offset":-259200,"is_read":true},
+    {"alias":"demo-1","user_id":"u1","ticket_id":"t2","type":"QUESTION_RAISED","title":"Pregunta pendiente","message":"Sofía Márquez planteó una pregunta en Portal Clientes: “Bloqueo de cuenta tras 5 intentos fallidos”","created_offset":-18000,"is_read":false},
+    {"alias":"demo-2","user_id":"u2","ticket_id":"t2","type":"QUESTION_RAISED","title":"Pregunta pendiente","message":"Sofía Márquez planteó una pregunta en Portal Clientes: “Bloqueo de cuenta tras 5 intentos fallidos”","created_offset":-18000,"is_read":false},
+    {"alias":"demo-3","user_id":"u1","ticket_id":null,"beta_incident_id":"i5","type":"SYSTEM","title":"Incidencia reportada","message":"Sofía Márquez reportó una incidencia en API Pagos: “Webhook duplicado cuando el receptor responde 5xx lento”","created_offset":-10800,"is_read":false},
+    {"alias":"demo-4","user_id":"u2","ticket_id":null,"beta_incident_id":"i5","type":"SYSTEM","title":"Incidencia reportada","message":"Sofía Márquez reportó una incidencia en API Pagos: “Webhook duplicado cuando el receptor responde 5xx lento”","created_offset":-10800,"is_read":false},
+    {"alias":"demo-5","user_id":"u1","ticket_id":"t4","type":"TICKET_COMPLETED","title":"Ticket completado","message":"Marco Ibáñez completó un ticket en Portal Clientes: “Editar datos fiscales con validación de NIF/CIF”","created_offset":-86400,"is_read":true},
+    {"alias":"demo-6","user_id":"u2","ticket_id":"t4","type":"TICKET_COMPLETED","title":"Ticket completado","message":"Marco Ibáñez completó un ticket en Portal Clientes: “Editar datos fiscales con validación de NIF/CIF”","created_offset":-86400,"is_read":true},
+    {"alias":"demo-7","user_id":"u3","ticket_id":"t7","type":"TICKET_REDIRECTED","title":"Ticket redirigido","message":"Marco Ibáñez te asignó: “Reintentos exponenciales en webhooks fallidos”","created_offset":-172800,"is_read":false}
+  ]
+}

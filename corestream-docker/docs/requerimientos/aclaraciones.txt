@@ -1,0 +1,17 @@
+Estimados: 
+
+Junto con saludar, hemos recibido algunas consultas sobre CORESTREAM. Para eso queremos realizar una aclaración general: 
+
+Corestream no usa actualmente servicios de pago.
+Corestream no usa supabase, usa postgre local
+Corestream usa un worker local con redis. 
+El repositorio tiene dos ambientes: local y producción. 
+Si intentan levantar el ambiente de producción, la aplicación intentará conectarse a los ambientes de producción (que están en nuestros sistemas), esto puede hacer pensar que usa servicios de pago cuando no es así. 
+Para levantar corestream solo hay que levantar el docker del ambiente de desarrollo, lo que construirá en local todos los servicios necesarios para su funcionamiento.
+
+Puede que haya algunas confusiones en cuanto a versiones. Por tanto, hemos disponibilizado un git centralizado al que tendrán acceso los líderes de equipo donde pueden encontrar la documentación y todo lo necesario para hacer funcionar la aplicación en ambiente local.
+
+Por favor, les pido que acepten la invitación antes de que expire.
+Les haré llegar un correo con los detalles del git.
+
+Saludos cordiales
