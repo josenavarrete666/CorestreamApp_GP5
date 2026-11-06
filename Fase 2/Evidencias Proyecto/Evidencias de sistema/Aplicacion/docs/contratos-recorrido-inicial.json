@@ -1,0 +1,20 @@
+{
+  "api_title": "CoreStream API",
+  "api_version": "1.0.0",
+  "origin": "http://localhost:8001",
+  "web_origin": "http://localhost:7358",
+  "scope": "initial_edge_integration",
+  "operations": [
+    {"method": "POST", "path": "/api/auth/login", "success": 200, "request_schema": "UserLogin", "response_schema": "TokenResponse", "request_fields": ["email", "password"], "response_fields": ["access_token", "token_type", "expires_in", "must_change_password"]},
+    {"method": "GET", "path": "/api/auth/me", "success": 200, "response_schema": "UserResponse", "response_fields": ["id", "email", "full_name", "role", "is_active", "created_at", "must_change_password"]},
+    {"method": "POST", "path": "/api/auth/refresh", "success": 200, "request_schema": "RefreshRequest", "response_schema": "TokenResponse", "transport": "cookie_and_csrf"},
+    {"method": "POST", "path": "/api/auth/logout", "success": 200, "request_schema": "LogoutRequest", "runtime_response_fields": ["message"], "transport": "bearer_and_cookie"},
+    {"method": "POST", "path": "/api/auth/change-password", "success": 200, "request_schema": "PasswordChange", "request_fields": ["old_password", "new_password"], "runtime_response_fields": ["message"]},
+    {"method": "GET", "path": "/api/applications/", "success": 200, "response_schema": "ApplicationResponse", "response_array": true, "response_fields": ["id", "name", "is_active", "created_at", "epic_count", "pending_count", "delayed_count"], "query_parameters": ["skip", "limit"]},
+    {"method": "GET", "path": "/api/notifications/", "success": 200, "response_schema": "NotificationResponse", "response_array": true, "response_fields": ["id", "user_id", "title", "message", "type", "is_read", "created_at", "ticket_id"], "query_parameters": ["skip", "limit", "unread_only"]},
+    {"method": "GET", "path": "/api/notifications/unread-count", "success": 200, "runtime_response_fields": ["unread_count", "user_id"]},
+    {"method": "POST", "path": "/api/notifications/mark-read", "success": 200, "runtime_request_fields": ["notification_ids"], "runtime_response_fields": ["marked_as_read", "total_requested"]},
+    {"method": "POST", "path": "/api/notifications/mark-all-read", "success": 200, "runtime_response_fields": ["marked_as_read"]},
+    {"method": "POST", "path": "/api/auth/ws-ticket", "success": 200, "runtime_response_fields": ["ticket"]}
+  ]
+}

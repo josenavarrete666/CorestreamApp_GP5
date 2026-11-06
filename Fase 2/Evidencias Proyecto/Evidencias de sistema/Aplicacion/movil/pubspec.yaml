@@ -1,0 +1,44 @@
+name: corestream_mobile
+description: App móvil de CoreStream — seguimiento de proyectos, tickets, incidencias y notificaciones.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Gestión de estado
+  flutter_riverpod: ^2.5.1
+  # Cliente HTTP para el backend FastAPI (modo API real)
+  dio: ^5.4.3
+  cookie_jar: ^4.0.8
+  dio_cookie_manager: ^3.2.0
+  web_socket_channel: ^3.0.3
+  web: ^1.1.1
+  # Persistencia ligera de preferencias (tema, idioma, modo)
+  shared_preferences: ^2.2.3
+  # Push FCM en Android (lib/services/firebase_push_service.dart). En web y
+  # escritorio se usa NoopPushService y Firebase no se inicializa.
+  firebase_core: ^5.1.0
+  firebase_messaging: ^17.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    # Marca Alloxentric (distribuidor) de la pantalla de ingreso; la versión
+    # _light tiene el texto claro para el tema oscuro (lib/ui/auth_layout.dart).
+    - assets/branding/alloxentric_logo.png
+    - assets/branding/alloxentric_logo_light.png
+  fonts:
+    # Logotipo CoreStream. Manrope, SIL Open Font License 1.1 (assets/fonts/Manrope-OFL.txt).
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Variable.ttf

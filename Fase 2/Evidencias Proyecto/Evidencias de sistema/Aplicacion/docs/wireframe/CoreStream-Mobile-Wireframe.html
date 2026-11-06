@@ -1,0 +1,1373 @@
+<title>CoreStream Mobile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+/* ================= PAGE (outer shell) — viewer-theme aware ================= */
+:root{
+  --pg-bg:#EDF0F6; --pg-ink:#1A2233; --pg-muted:#5D6778; --pg-line:#D8DEE9;
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --pg-bg:#0A0F19; --pg-ink:#E8EDF6; --pg-muted:#8B96AB; --pg-line:#232D40;
+  }
+}
+:root[data-theme="dark"]{
+  --pg-bg:#0A0F19; --pg-ink:#E8EDF6; --pg-muted:#8B96AB; --pg-line:#232D40;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{
+  background:var(--pg-bg); color:var(--pg-ink);
+  font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:56px;
+  min-height:100vh; padding:32px 20px;
+}
+.page-aside{max-width:300px}
+.page-aside .brand{
+  font-family:"Sora",sans-serif; font-weight:700; font-size:26px; letter-spacing:-.02em;
+  display:flex; align-items:center; gap:10px; margin-bottom:14px;
+}
+.page-aside .brand .logo-dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#4C8DFF,#2FBF71);flex:none}
+.page-aside p{color:var(--pg-muted); font-size:14.5px; line-height:1.6; margin-bottom:18px}
+.page-aside .hintlist{list-style:none; font-size:13.5px; color:var(--pg-muted); display:flex; flex-direction:column; gap:8px}
+.page-aside .hintlist li{display:flex; gap:8px; align-items:baseline}
+.page-aside .hintlist li::before{content:"→"; color:#4C8DFF; flex:none}
+.page-aside .tagchip{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  border:1px solid var(--pg-line); border-radius:99px; padding:4px 10px; color:var(--pg-muted); margin-bottom:16px}
+@media (max-width:900px){ .page-aside{display:none} body{padding:0} }
+
+/* ================= PHONE FRAME ================= */
+.phone-wrap{flex:none; position:relative}
+#phone{
+  width:392px; height:812px; border-radius:44px; overflow:hidden; position:relative;
+  box-shadow:0 30px 80px -20px rgba(5,10,20,.55), 0 0 0 10px #10151f, 0 0 0 12px #2a3346;
+  display:flex; flex-direction:column;
+  font-family:"Instrument Sans",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink);
+}
+@media (max-width:900px){
+  .phone-wrap{width:100%; height:100dvh}
+  #phone{width:100%; height:100dvh; border-radius:0; box-shadow:none}
+}
+
+/* ================= APP THEME TOKENS (self-contained, toggled in-app) ================= */
+#phone[data-apptheme="dark"]{
+  --bg:#0E1420; --surface:#161E2D; --raised:#1D2739; --line:#26314A; --line-soft:#1F2940;
+  --ink:#E9EEF7; --mut:#8D98AE; --faint:#5C6880;
+  --acc:#4C8DFF; --acc-soft:rgba(76,141,255,.14); --acc-ink:#FFFFFF;
+  --amber:#F2A93B; --amber-soft:rgba(242,169,59,.14);
+  --green:#2FBF71; --green-soft:rgba(47,191,113,.14);
+  --red:#F0554E; --red-soft:rgba(240,85,78,.14);
+  --indigo:#8B7CF6; --indigo-soft:rgba(139,124,246,.15);
+  --gray:#8D98AE; --gray-soft:rgba(141,152,174,.14);
+  --statusbar:#0E1420; --sheet-scrim:rgba(4,8,16,.62);
+  --shadow:0 10px 28px -12px rgba(3,7,14,.7);
+  --tabbar:rgba(14,20,32,.92);
+}
+#phone[data-apptheme="light"]{
+  --bg:#F2F5FA; --surface:#FFFFFF; --raised:#FFFFFF; --line:#DFE5F0; --line-soft:#E8EDF5;
+  --ink:#17202F; --mut:#5D6980; --faint:#93A0B5;
+  --acc:#2F6FE4; --acc-soft:rgba(47,111,228,.10); --acc-ink:#FFFFFF;
+  --amber:#C97F10; --amber-soft:rgba(226,153,32,.14);
+  --green:#1E9E5C; --green-soft:rgba(30,158,92,.12);
+  --red:#D93B34; --red-soft:rgba(217,59,52,.10);
+  --indigo:#6A5AE0; --indigo-soft:rgba(106,90,224,.12);
+  --gray:#71809A; --gray-soft:rgba(113,128,154,.12);
+  --statusbar:#F2F5FA; --sheet-scrim:rgba(23,32,47,.45);
+  --shadow:0 10px 24px -14px rgba(23,32,47,.28);
+  --tabbar:rgba(255,255,255,.94);
+}
+
+/* ================= APP GENERICS ================= */
+#phone *{-webkit-tap-highlight-color:transparent}
+button{background:none}
+#phone button{font-family:inherit; border:none; color:inherit; cursor:pointer; font-size:inherit}
+#phone input,#phone textarea,#phone select{
+  font-family:inherit; font-size:14px; color:var(--ink);
+  background:var(--raised); border:1px solid var(--line); border-radius:12px; padding:11px 12px; width:100%;
+}
+#phone input:focus,#phone textarea:focus,#phone select:focus,#phone button:focus-visible{outline:2px solid var(--acc); outline-offset:1px}
+#phone ::placeholder{color:var(--faint)}
+.mono{font-family:"Spline Sans Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+/* status bar */
+.statusbar{height:44px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 26px 0 30px; background:var(--statusbar); font-size:13.5px; font-weight:600; z-index:5}
+.statusbar .right{display:flex; gap:6px; align-items:center; color:var(--mut)}
+
+/* app header */
+.apphead{flex:none; display:flex; align-items:center; gap:10px; padding:8px 16px 12px; background:var(--statusbar)}
+.apphead .ttl{flex:1; min-width:0}
+.apphead .ttl h1{font-family:"Sora",sans-serif; font-size:19px; font-weight:600; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.apphead .ttl .sub{font-size:12px; color:var(--mut); margin-top:1px}
+.iconbtn{width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  background:var(--surface); border:1px solid var(--line-soft); color:var(--mut); position:relative; flex:none}
+.iconbtn svg{width:19px; height:19px}
+.iconbtn .badge{position:absolute; top:-5px; right:-5px; min-width:17px; height:17px; border-radius:99px;
+  background:var(--red); color:#fff; font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px}
+.backbtn{width:34px;height:38px;display:flex;align-items:center;color:var(--mut);flex:none}
+.backbtn svg{width:20px;height:20px}
+
+/* main scroll area */
+#screen{flex:1; overflow-y:auto; overscroll-behavior:contain; padding:4px 16px 96px; scrollbar-width:thin}
+
+/* bottom tab bar */
+.tabbar{position:absolute; left:0; right:0; bottom:0; height:78px; display:flex; z-index:6;
+  background:var(--tabbar); backdrop-filter:blur(14px); border-top:1px solid var(--line-soft); padding-bottom:14px}
+.tabbar button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  font-size:10.5px; font-weight:600; color:var(--faint); letter-spacing:.01em}
+.tabbar button svg{width:22px; height:22px}
+.tabbar button.on{color:var(--acc)}
+
+/* cards & chips */
+.card{background:var(--surface); border:1px solid var(--line-soft); border-radius:16px; padding:14px; box-shadow:var(--shadow)}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; letter-spacing:.04em;
+  border-radius:99px; padding:3px 9px; white-space:nowrap}
+.chip .dot{width:6px;height:6px;border-radius:99px;background:currentColor}
+.c-todo{color:var(--gray); background:var(--gray-soft)}
+.c-prog{color:var(--acc); background:var(--acc-soft)}
+.c-block{color:var(--amber); background:var(--amber-soft)}
+.c-done{color:var(--green); background:var(--green-soft)}
+.c-redir{color:var(--indigo); background:var(--indigo-soft)}
+.c-red{color:var(--red); background:var(--red-soft)}
+.prio{width:8px; height:8px; border-radius:99px; flex:none}
+.p-LOW{background:var(--green)} .p-MEDIUM{background:var(--amber)} .p-HIGH{background:#F07E3E} .p-URGENT,.p-CRITICAL{background:var(--red)}
+
+.seclbl{font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin:18px 2px 8px}
+.avatar{border-radius:99px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; flex:none; font-family:"Sora",sans-serif}
+.progress{height:6px; border-radius:99px; background:var(--line-soft); overflow:hidden}
+.progress i{display:block; height:100%; border-radius:99px; background:var(--green); transition:width .4s ease}
+
+.btn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  border-radius:13px; padding:13px 14px; font-size:14.5px; font-weight:600}
+.btn svg{width:17px;height:17px}
+.btn-acc{background:var(--acc); color:var(--acc-ink)}
+.btn-green{background:var(--green); color:#fff}
+.btn-amber{background:var(--amber); color:#1d1503}
+#phone[data-apptheme="light"] .btn-amber{color:#fff}
+.btn-indigo{background:var(--indigo); color:#fff}
+.btn-ghost{background:var(--surface); border:1px solid var(--line); color:var(--ink)}
+.btn-danger{background:var(--red-soft); color:var(--red)}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.btnrow{display:flex; gap:10px}
+.btnrow .btn{flex:1}
+
+/* login */
+.login{display:flex; flex-direction:column; height:100%; padding:26px 24px 30px}
+.login .lbrand{margin-top:34px; text-align:center}
+.login .lbrand .mark{width:64px; height:64px; border-radius:20px; margin:0 auto 16px;
+  background:linear-gradient(135deg,#4C8DFF,#2FBF71); display:flex; align-items:center; justify-content:center;
+  font-family:"Sora",sans-serif; font-weight:700; font-size:28px; color:#fff; box-shadow:0 14px 30px -10px rgba(76,141,255,.55)}
+.login h1{font-family:"Sora",sans-serif; font-size:27px; font-weight:700; letter-spacing:-.02em}
+.login .lsub{color:var(--mut); font-size:14px; margin-top:6px; line-height:1.5}
+.rolecard{display:flex; align-items:center; gap:13px; text-align:left; width:100%;
+  background:var(--surface); border:1px solid var(--line-soft); border-radius:18px; padding:14px; box-shadow:var(--shadow);
+  transition:transform .12s ease, border-color .12s ease}
+.rolecard:active{transform:scale(.98)}
+.rolecard:hover{border-color:var(--acc)}
+.rolecard .rinfo{flex:1; min-width:0}
+.rolecard .rname{font-weight:700; font-size:15.5px}
+.rolecard .rmeta{font-size:12.5px; color:var(--mut); margin-top:2px}
+.rolecard .rchev{color:var(--faint)}
+.rolechip{font-size:10.5px; font-weight:700; letter-spacing:.06em; border-radius:7px; padding:2.5px 7px; display:inline-block; margin-top:5px}
+
+/* home stats */
+.statgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.stat{background:var(--surface); border:1px solid var(--line-soft); border-radius:16px; padding:13px 14px; box-shadow:var(--shadow)}
+.stat .n{font-family:"Sora",sans-serif; font-size:24px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px; color:var(--mut); margin-top:2px}
+.stat .bar{margin-top:9px}
+
+/* list rows */
+.rowcard{display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  background:var(--surface); border:1px solid var(--line-soft); border-radius:16px; padding:13px 14px; box-shadow:var(--shadow)}
+.rowcard .rc-body{flex:1; min-width:0}
+.rowcard .rc-t{font-weight:600; font-size:14.5px; line-height:1.35}
+.rowcard .rc-s{font-size:12.5px; color:var(--mut); margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.appicon{width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+  font-family:"Sora",sans-serif; font-weight:700; font-size:16px; color:#fff; flex:none}
+.stack{display:flex; flex-direction:column; gap:10px}
+
+/* filters */
+.filters{display:flex; gap:7px; overflow-x:auto; padding:2px; margin:2px 0 12px; scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fchip{flex:none; font-size:12.5px; font-weight:600; border-radius:99px; padding:7px 13px;
+  background:var(--surface); border:1px solid var(--line); color:var(--mut)}
+.fchip.on{background:var(--acc); border-color:var(--acc); color:var(--acc-ink)}
+
+/* epic block */
+.epic{background:var(--surface); border:1px solid var(--line-soft); border-radius:18px; box-shadow:var(--shadow); overflow:hidden}
+.epic-head{display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:14px}
+.epic-head .eh-body{flex:1; min-width:0}
+.epic-head .eh-t{font-weight:700; font-size:14.5px}
+.epic-head .eh-m{font-size:12px; color:var(--mut); margin-top:3px}
+.epic-tickets{border-top:1px solid var(--line-soft); padding:10px 12px 12px; display:flex; flex-direction:column; gap:8px}
+.tkt{display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  background:var(--raised); border:1px solid var(--line-soft); border-radius:13px; padding:11px 12px}
+.tkt.blocked{border-color:var(--amber)}
+.tkt .tk-b{flex:1; min-width:0}
+.tkt .tk-t{font-size:13.5px; font-weight:600; line-height:1.35}
+.tkt .tk-m{display:flex; align-items:center; gap:7px; margin-top:5px; flex-wrap:wrap; font-size:11.5px; color:var(--mut)}
+.due-late{color:var(--red); font-weight:600}
+
+/* detail */
+.d-crumb{font-size:11.5px; color:var(--faint); font-weight:600; letter-spacing:.02em; display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin:8px 2px 6px}
+.d-title{font-family:"Sora",sans-serif; font-size:20px; font-weight:600; letter-spacing:-.01em; line-height:1.3; margin:0 2px 10px}
+.kv{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line-soft); font-size:13.5px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--mut)}
+.kv .v{font-weight:600; display:flex; align-items:center; gap:7px; text-align:right}
+.desc{font-size:13.5px; line-height:1.6; color:var(--mut)}
+
+/* subtasks */
+.sub{display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:9px 2px; border-bottom:1px solid var(--line-soft); font-size:13.5px}
+.sub:last-child{border-bottom:none}
+.sub .box{width:19px; height:19px; border-radius:6px; border:1.5px solid var(--line); flex:none; display:flex; align-items:center; justify-content:center; color:#fff}
+.sub.done .box{background:var(--green); border-color:var(--green)}
+.sub.done .st{text-decoration:line-through; color:var(--faint)}
+.sub .box svg{width:12px;height:12px}
+
+/* activity */
+.act{display:flex; gap:11px; padding:9px 0}
+.act .aic{width:30px; height:30px; border-radius:99px; flex:none; display:flex; align-items:center; justify-content:center}
+.act .aic svg{width:15px; height:15px}
+.act .ab{flex:1; min-width:0; font-size:13px; line-height:1.45}
+.act .ab .aw{color:var(--mut)}
+.act .ab b{font-weight:600; color:var(--ink)}
+.act .at{font-size:11.5px; color:var(--faint); margin-top:2px}
+.act .quote{margin-top:6px; font-size:12.5px; background:var(--amber-soft); color:var(--amber); border-left:3px solid var(--amber); padding:7px 10px; border-radius:0 9px 9px 0}
+
+/* timer */
+.timer{display:flex; align-items:center; justify-content:space-between; background:var(--raised); border:1px solid var(--line-soft); border-radius:13px; padding:11px 13px}
+.timer .tt{font-size:18px; font-weight:600}
+.timer .tlbl{font-size:11.5px; color:var(--mut)}
+.timer.running .tt{color:var(--green)}
+.timer.paused{border-color:var(--amber); background:var(--amber-soft)}
+.timer.paused .tt{color:var(--amber)}
+.pulse{width:8px; height:8px; border-radius:99px; background:var(--green); animation:pul 1.4s infinite}
+.pulse.amber{background:var(--amber)}
+@keyframes pul{0%,100%{opacity:1}50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){ .pulse{animation:none} }
+
+/* notifications screen */
+.notif{display:flex; gap:11px; width:100%; text-align:left; padding:13px 12px;
+  background:var(--surface); border:1px solid var(--line-soft); border-radius:15px; box-shadow:var(--shadow)}
+.notif.unread{border-left:3px solid var(--acc)}
+.notif .nic{width:36px; height:36px; border-radius:12px; flex:none; display:flex; align-items:center; justify-content:center}
+.notif .nic svg{width:17px; height:17px}
+.notif .nb{flex:1; min-width:0}
+.notif .nt{font-size:13.5px; font-weight:700}
+.notif .nm{font-size:12.5px; color:var(--mut); margin-top:2px; line-height:1.45}
+.notif .nts{font-size:11px; color:var(--faint); margin-top:4px}
+.notif .undot{width:8px; height:8px; border-radius:99px; background:var(--acc); flex:none; margin-top:5px}
+
+/* toast (push simulation) */
+#toasts{position:absolute; top:52px; left:12px; right:12px; z-index:40; display:flex; flex-direction:column; gap:8px; pointer-events:none}
+.toast{pointer-events:auto; display:flex; gap:10px; align-items:flex-start; width:100%; text-align:left;
+  background:var(--raised); border:1px solid var(--line); border-radius:16px; padding:12px 13px;
+  box-shadow:0 18px 40px -12px rgba(3,7,14,.6); animation:tin .35s cubic-bezier(.2,.9,.3,1.2)}
+.toast .nic{width:34px;height:34px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center}
+.toast .nic svg{width:16px;height:16px}
+.toast .tb{flex:1; min-width:0}
+.toast .tt1{font-size:13px; font-weight:700}
+.toast .tt2{font-size:12px; color:var(--mut); margin-top:1px; line-height:1.4}
+.toast .tapp{font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--faint); text-transform:uppercase; margin-bottom:2px}
+@keyframes tin{from{transform:translateY(-16px); opacity:0} to{transform:none; opacity:1}}
+@keyframes tout{to{transform:translateY(-14px); opacity:0}}
+.toast.hide{animation:tout .3s forwards}
+@media (prefers-reduced-motion: reduce){ .toast{animation:none} }
+
+/* spans de texto apilados */
+.toast .tapp,.toast .tt1,.toast .tt2,.toast .tb,
+.notif .nt,.notif .nm,.notif .nts,.notif .nb,
+.rowcard .rc-t,.rowcard .rc-body,.tkt .tk-t,.tkt .tk-b,
+.epic-head .eh-t,.epic-head .eh-m,.epic-head .eh-body,
+.rolecard .rname,.rolecard .rmeta,.rolecard .rinfo,
+.member .mn,.member .ms,.member .mb,.member .load .n,.member .load .l,
+.progress{display:block}
+.act .ab,.act .ab .aw{display:inline}
+.act .ab{display:block}
+
+/* sheet (bottom modal) */
+#sheetwrap{position:absolute; inset:0; z-index:50; display:none}
+#sheetwrap.open{display:block}
+#sheetwrap .scrim{position:absolute; inset:0; background:var(--sheet-scrim)}
+#sheet{position:absolute; left:0; right:0; bottom:0; max-height:82%; overflow-y:auto;
+  background:var(--surface); border-radius:24px 24px 0 0; padding:10px 18px 26px;
+  border-top:1px solid var(--line); animation:sup .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes sup{from{transform:translateY(40px); opacity:.4} to{transform:none; opacity:1}}
+@media (prefers-reduced-motion: reduce){ #sheet{animation:none} }
+#sheet .grab{width:40px; height:4px; border-radius:99px; background:var(--line); margin:4px auto 14px}
+#sheet h3{font-family:"Sora",sans-serif; font-size:17px; font-weight:600; margin-bottom:4px}
+#sheet .shsub{font-size:13px; color:var(--mut); margin-bottom:14px; line-height:1.5}
+.fld{margin-bottom:12px}
+.fld label{display:block; font-size:12px; font-weight:700; color:var(--mut); margin-bottom:6px; letter-spacing:.03em}
+.userpick{display:flex; align-items:center; gap:11px; width:100%; text-align:left; padding:10px 8px; border-radius:12px; border:1px solid transparent}
+.userpick:hover{background:var(--raised)}
+.userpick.sel{border-color:var(--acc); background:var(--acc-soft)}
+.userpick .un{font-weight:600; font-size:14px}
+.userpick .us{font-size:12px; color:var(--mut)}
+.hinterr{font-size:12px; color:var(--red); margin-top:5px; display:none}
+.hinterr.show{display:block}
+
+/* settings */
+.setrow{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 2px; border-bottom:1px solid var(--line-soft); font-size:14px}
+.setrow:last-child{border-bottom:none}
+.seg{display:flex; background:var(--raised); border:1px solid var(--line); border-radius:11px; padding:3px; gap:2px}
+.seg button{font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:8px; color:var(--mut)}
+.seg button.on{background:var(--acc); color:var(--acc-ink)}
+
+/* team */
+.member{display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line-soft); border-radius:16px; padding:13px 14px; box-shadow:var(--shadow)}
+.member .mb{flex:1; min-width:0}
+.member .mn{font-weight:700; font-size:14.5px}
+.member .ms{font-size:12px; color:var(--mut); margin-top:1px}
+.member .load{text-align:right}
+.member .load .n{font-family:"Sora",sans-serif; font-weight:700; font-size:17px}
+.member .load .l{font-size:10.5px; color:var(--faint)}
+
+/* incident severity stripe */
+.inc{position:relative; overflow:hidden}
+.inc::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px}
+.inc.s-CRITICAL::before{background:var(--red)}
+.inc.s-HIGH::before{background:#F07E3E}
+.inc.s-MEDIUM::before{background:var(--amber)}
+.inc.s-LOW::before{background:var(--green)}
+
+.d-crumb svg{width:12px;height:12px;flex:none}
+.rolecard .rchev svg{width:18px;height:18px}
+.userpick .pickmark svg{width:18px;height:18px}
+.empty svg{width:17px;height:17px;vertical-align:-3px;margin-right:4px}
+.empty{text-align:center; color:var(--faint); font-size:13.5px; padding:38px 20px; line-height:1.6}
+.empty .eic{font-size:30px; margin-bottom:8px}
+.readall{font-size:12.5px; font-weight:600; color:var(--acc)}
+.confetti{position:absolute; inset:0; pointer-events:none; z-index:60}
+</style>
+
+<div class="page-aside">
+  <span class="tagchip">Prototipo funcional · UX móvil</span>
+  <div class="brand"><span class="logo-dot"></span>CoreStream Mobile</div>
+  <p>Simulación navegable de la app de seguimiento de proyectos CoreStream: estado de proyectos, asignación de tareas, incidencias y notificaciones push, respetando los roles y accesos de la versión web.</p>
+  <ul class="hintlist">
+    <li>Entra con cualquiera de los 3 roles (Admin, Líder, Desarrollador)</li>
+    <li>Las notificaciones simuladas llegan solas cada ~20 s</li>
+    <li>Tema claro/oscuro e idioma ES/EN desde el engranaje</li>
+    <li>Asigna, completa, bloquea o redirige tickets con datos demo</li>
+  </ul>
+</div>
+
+<div class="phone-wrap">
+  <div id="phone" data-apptheme="dark">
+    <div class="statusbar"><span class="mono" id="clock">9:41</span>
+      <span class="right"><svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13" y="0" width="3" height="12" rx="1" opacity=".35"/></svg>
+      <svg width="22" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="19" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="13" height="8" rx="1.5" fill="currentColor"/><rect x="21" y="3.5" width="2.5" height="5" rx="1" fill="currentColor"/></svg></span>
+    </div>
+    <div id="apphead"></div>
+    <div id="screen" role="main"></div>
+    <div id="tabbar"></div>
+    <div id="toasts" aria-live="polite"></div>
+    <div id="sheetwrap"><div class="scrim" data-a="closeSheet"></div><div id="sheet" role="dialog" aria-modal="true"></div></div>
+    <canvas class="confetti" id="confetti" width="392" height="812"></canvas>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   CoreStream Mobile — prototipo funcional
+   Simula la app móvil sobre el modelo real del sistema CoreStream:
+   Aplicaciones → Épicas → Tickets → Subtareas · Incidencias · Roles
+   ===================================================================== */
+</script>
+<script>
+/* ============================ I18N ============================ */
+const I18N = {
+  es: {
+    login_welcome:"Bienvenido a CoreStream", login_sub:"Selecciona un usuario demo para entrar. La app adapta la navegación y los permisos según el rol, igual que la versión web.",
+    role_ADMIN:"Administrador", role_GROUP_LEADER:"Líder de grupo", role_DEVELOPER:"Desarrollador",
+    tab_home:"Inicio", tab_projects:"Proyectos", tab_incidents:"Incidencias", tab_team:"Equipo", tab_work:"Mi trabajo",
+    hello:"Hola", home_sub_admin:"Estado global de los proyectos", home_sub_dev:"Tu trabajo de hoy",
+    st_apps:"Aplicaciones", st_open:"Tickets abiertos", st_blocked:"Bloqueados", st_late:"Atrasados",
+    st_mine:"Mis tickets", st_prog:"En progreso", st_done_week:"Hechos (semana)",
+    projects:"Proyectos", proj_status:"Estado de proyectos", attention:"Requiere atención", recent_activity:"Actividad reciente",
+    epics:"épicas", tickets:"tickets", pending:"pendientes", overdue:"atrasados", progress:"Progreso",
+    all:"Todos", f_todo:"Por hacer", f_prog:"En progreso", f_blocked:"Bloqueados", f_done:"Hechos", f_mine:"Míos",
+    s_TODO:"Por hacer", s_IN_PROGRESS:"En progreso", s_BLOCKED:"Bloqueado", s_REDIRECTED:"Redirigido", s_DONE:"Hecho",
+    p_LOW:"Baja", p_MEDIUM:"Media", p_HIGH:"Alta", p_URGENT:"Urgente",
+    is_OPEN:"Abierta", is_IN_PROGRESS:"En progreso", is_UNDER_REVIEW:"En revisión", is_RESOLVED:"Resuelta", is_CLOSED:"Cerrada", is_REOPENED:"Reabierta",
+    sev_CRITICAL:"Crítica", sev_HIGH:"Alta", sev_MEDIUM:"Media", sev_LOW:"Baja",
+    cat_NEW_FEATURE:"Nueva funcionalidad", cat_CRITICAL_ERROR:"Error crítico", cat_NON_CRITICAL_ERROR:"Error no crítico", cat_USABILITY_ISSUE:"Usabilidad",
+    ticket:"Ticket", epic:"Épica", assignee:"Asignado a", unassigned:"Sin asignar", due:"Vence", priority:"Prioridad", status:"Estado",
+    time_spent:"Tiempo invertido", time_blocked:"Tiempo bloqueado", description:"Descripción", subtasks:"Subtareas", activity:"Registro de actividad",
+    assign:"Asignar", reassign:"Reasignar", assign_t:"Asignar ticket", assign_sub:"Elige a quién asignar esta tarea. Recibirá una notificación al instante.",
+    start:"Comenzar a trabajar", complete:"Completar", raise_q:"Plantear pregunta", redirect:"Redirigir", resume:"Reanudar trabajo",
+    complete_t:"Completar ticket", complete_sub:"Pega el enlace del Pull Request para cerrar el ticket.",
+    pr_link:"Enlace de PR", pr_invalid:"Enlace inválido. Se admite GitHub, GitLab o Bitbucket.",
+    q_t:"Plantear pregunta", q_sub:"El ticket quedará bloqueado y se pausará el temporizador hasta que el líder responda.", q_ph:"¿Qué impide avanzar? (mín. 10 caracteres)",
+    q_short:"Escribe al menos 10 caracteres.",
+    rd_t:"Redirigir ticket", rd_sub:"El ticket pasará a otra persona del equipo con una razón visible en el historial.", rd_reason:"Razón (mín. 10 caracteres)",
+    rs_t:"Reanudar trabajo", rs_sub:"Describe cómo se resolvió el bloqueo para reanudar el temporizador.", rs_ph:"Resolución del bloqueo…",
+    send:"Enviar", cancel:"Cancelar", confirm:"Confirmar", save:"Guardar",
+    new_ticket:"Nuevo ticket", nt_sub:"Se creará en esta épica y se notificará al equipo.", nt_title:"Título del ticket", nt_ph:"Ej.: Validar formato de IBAN",
+    view_only:"Solo lectura — tu rol no permite editar este ticket.",
+    incidents:"Incidencias", my_incidents:"Mis incidencias", incident:"Incidencia", reported_by:"Reportada por", severity:"Severidad", category:"Categoría",
+    take:"Tomar incidencia", to_review:"Pasar a revisión", resolve_inc:"Marcar resuelta", close_inc:"Cerrar", reopen:"Reabrir", comments:"Comentarios",
+    team:"Equipo", workload:"Carga de trabajo", active_t:"activos",
+    notifications:"Notificaciones", mark_all:"Marcar todas como leídas", no_notifs:"Sin notificaciones nuevas.\nCuando ocurra algo en tus proyectos, aparecerá aquí.",
+    settings:"Ajustes", theme:"Tema", dark:"Oscuro", light:"Claro", language:"Idioma", logout:"Cerrar sesión",
+    push_demo:"Notificaciones simuladas", push_demo_sub:"Genera eventos del equipo cada ~20 s",
+    now:"ahora", min_ago:"hace {n} min", h_ago:"hace {n} h", d_ago:"hace {n} d",
+    n_ASSIGNMENT:"Ticket asignado", n_QUESTION:"Pregunta planteada", n_REDIRECT:"Ticket redirigido", n_COMPLETION:"Ticket completado", n_SYSTEM:"Nuevo ticket", n_INCIDENT:"Nueva incidencia",
+    ev_CREATED:"creó el ticket", ev_ASSIGNED:"asignó el ticket a", ev_STATUS:"cambió el estado", ev_QUESTION:"planteó una pregunta", ev_RESOLVED:"resolvió el bloqueo",
+    ev_REDIRECTED:"redirigió el ticket a", ev_COMPLETED:"completó el ticket", ev_COMMENT:"comentó",
+    empty_tickets:"No hay tickets con este filtro.", see_all:"Ver todo", of:"de",
+    demo_note:"Datos de demostración — ningún cambio se guarda.",
+    inc_new_by:"reportó una incidencia en", tk_new_in:"creó un ticket en", completed_in:"completó un ticket en", asked_in:"planteó una pregunta en",
+    your_new_assign:"Te ha asignado:", blocked_needs:"Esperando respuesta del líder", assigned_you:"te asignó",
+  },
+  en: {
+    login_welcome:"Welcome to CoreStream", login_sub:"Pick a demo user to sign in. The app adapts navigation and permissions to the role, just like the web version.",
+    role_ADMIN:"Administrator", role_GROUP_LEADER:"Group leader", role_DEVELOPER:"Developer",
+    tab_home:"Home", tab_projects:"Projects", tab_incidents:"Incidents", tab_team:"Team", tab_work:"My work",
+    hello:"Hi", home_sub_admin:"Global project status", home_sub_dev:"Your work today",
+    st_apps:"Applications", st_open:"Open tickets", st_blocked:"Blocked", st_late:"Overdue",
+    st_mine:"My tickets", st_prog:"In progress", st_done_week:"Done (week)",
+    projects:"Projects", proj_status:"Project status", attention:"Needs attention", recent_activity:"Recent activity",
+    epics:"epics", tickets:"tickets", pending:"pending", overdue:"overdue", progress:"Progress",
+    all:"All", f_todo:"To do", f_prog:"In progress", f_blocked:"Blocked", f_done:"Done", f_mine:"Mine",
+    s_TODO:"To do", s_IN_PROGRESS:"In progress", s_BLOCKED:"Blocked", s_REDIRECTED:"Redirected", s_DONE:"Done",
+    p_LOW:"Low", p_MEDIUM:"Medium", p_HIGH:"High", p_URGENT:"Urgent",
+    is_OPEN:"Open", is_IN_PROGRESS:"In progress", is_UNDER_REVIEW:"Under review", is_RESOLVED:"Resolved", is_CLOSED:"Closed", is_REOPENED:"Reopened",
+    sev_CRITICAL:"Critical", sev_HIGH:"High", sev_MEDIUM:"Medium", sev_LOW:"Low",
+    cat_NEW_FEATURE:"New feature", cat_CRITICAL_ERROR:"Critical error", cat_NON_CRITICAL_ERROR:"Non-critical error", cat_USABILITY_ISSUE:"Usability",
+    ticket:"Ticket", epic:"Epic", assignee:"Assignee", unassigned:"Unassigned", due:"Due", priority:"Priority", status:"Status",
+    time_spent:"Time spent", time_blocked:"Blocked time", description:"Description", subtasks:"Subtasks", activity:"Activity log",
+    assign:"Assign", reassign:"Reassign", assign_t:"Assign ticket", assign_sub:"Choose who takes this task. They'll get an instant notification.",
+    start:"Start working", complete:"Complete", raise_q:"Raise question", redirect:"Redirect", resume:"Resume work",
+    complete_t:"Complete ticket", complete_sub:"Paste the Pull Request link to close the ticket.",
+    pr_link:"PR link", pr_invalid:"Invalid link. GitHub, GitLab or Bitbucket supported.",
+    q_t:"Raise question", q_sub:"The ticket will be blocked and the timer paused until the leader answers.", q_ph:"What's blocking you? (min. 10 characters)",
+    q_short:"Write at least 10 characters.",
+    rd_t:"Redirect ticket", rd_sub:"The ticket moves to another teammate with a reason visible in the history.", rd_reason:"Reason (min. 10 characters)",
+    rs_t:"Resume work", rs_sub:"Describe how the blocker was resolved to resume the timer.", rs_ph:"Blocker resolution…",
+    send:"Send", cancel:"Cancel", confirm:"Confirm", save:"Save",
+    new_ticket:"New ticket", nt_sub:"It will be created in this epic and the team will be notified.", nt_title:"Ticket title", nt_ph:"E.g.: Validate IBAN format",
+    view_only:"Read-only — your role can't edit this ticket.",
+    incidents:"Incidents", my_incidents:"My incidents", incident:"Incident", reported_by:"Reported by", severity:"Severity", category:"Category",
+    take:"Take incident", to_review:"Send to review", resolve_inc:"Mark resolved", close_inc:"Close", reopen:"Reopen", comments:"Comments",
+    team:"Team", workload:"Workload", active_t:"active",
+    notifications:"Notifications", mark_all:"Mark all as read", no_notifs:"No new notifications.\nWhen something happens in your projects, it shows up here.",
+    settings:"Settings", theme:"Theme", dark:"Dark", light:"Light", language:"Language", logout:"Sign out",
+    push_demo:"Simulated notifications", push_demo_sub:"Generates team events every ~20 s",
+    now:"now", min_ago:"{n} min ago", h_ago:"{n} h ago", d_ago:"{n} d ago",
+    n_ASSIGNMENT:"Ticket assigned", n_QUESTION:"Question raised", n_REDIRECT:"Ticket redirected", n_COMPLETION:"Ticket completed", n_SYSTEM:"New ticket", n_INCIDENT:"New incident",
+    ev_CREATED:"created the ticket", ev_ASSIGNED:"assigned the ticket to", ev_STATUS:"changed status", ev_QUESTION:"raised a question", ev_RESOLVED:"resolved the blocker",
+    ev_REDIRECTED:"redirected the ticket to", ev_COMPLETED:"completed the ticket", ev_COMMENT:"commented",
+    empty_tickets:"No tickets match this filter.", see_all:"See all", of:"of",
+    demo_note:"Demo data — nothing is saved.",
+    inc_new_by:"reported an incident in", tk_new_in:"created a ticket in", completed_in:"completed a ticket in", asked_in:"raised a question in",
+    your_new_assign:"Assigned to you:", blocked_needs:"Waiting for leader's answer", assigned_you:"assigned you",
+  }
+};
+let LANG = 'es';
+const t = (k, vars) => {
+  let s = (I18N[LANG][k] ?? I18N.es[k] ?? k);
+  if (vars) for (const [key,v] of Object.entries(vars)) s = s.replace('{'+key+'}', v);
+  return s;
+};
+
+/* ============================ DEMO DATA ============================ */
+const NOW = Date.now();
+const min = n => NOW - n*60000, hr = n => NOW - n*3600000, day = n => NOW - n*86400000;
+const inDays = n => NOW + n*86400000;
+
+const USERS = [
+  {id:'u1', name:'Ana Torres',   role:'ADMIN',        specialty:'Arquitectura de soluciones', color:'#4C8DFF', initials:'AT'},
+  {id:'u2', name:'Luis Vega',    role:'GROUP_LEADER', specialty:'Backend · Líder equipo Pagos', color:'#8B7CF6', initials:'LV'},
+  {id:'u3', name:'Diego Ramos',  role:'DEVELOPER',    specialty:'Frontend · Vue / TypeScript', color:'#2FBF71', initials:'DR'},
+  {id:'u4', name:'Sofía Márquez',role:'DEVELOPER',    specialty:'Full-stack · Integraciones', color:'#F2A93B', initials:'SM'},
+  {id:'u5', name:'Marco Ibáñez', role:'DEVELOPER',    specialty:'QA · Automatización', color:'#F0554E', initials:'MI'},
+];
+const U = id => USERS.find(u=>u.id===id);
+
+const APPS = [
+  {id:'a1', name:'Portal Clientes', code:'PC', color:'#4C8DFF'},
+  {id:'a2', name:'API Pagos',       code:'AP', color:'#2FBF71'},
+  {id:'a3', name:'App Logística',   code:'AL', color:'#8B7CF6'},
+];
+
+const EPICS = [
+  {id:'e1', appId:'a1', name:'Autenticación y seguridad'},
+  {id:'e2', appId:'a1', name:'Panel de autogestión'},
+  {id:'e3', appId:'a2', name:'Conciliación bancaria'},
+  {id:'e4', appId:'a2', name:'Webhooks de pago'},
+  {id:'e5', appId:'a3', name:'Seguimiento de flotas'},
+];
+
+let TKN = 147; // correlativo demo T-xxx
+const TICKETS = [
+  {id:'t1', num:132, epicId:'e1', title:'Implementar login con doble factor (TOTP)', desc:'Añadir verificación TOTP tras la contraseña. Incluir códigos de respaldo y flujo de recuperación. Criterio de aceptación: compatible con Google Authenticator y 1Password.',
+   status:'IN_PROGRESS', priority:'HIGH', assignee:'u3', createdBy:'u2', due: inDays(2), spent: 4*3600+22*60, blocked: 35*60, running:true,
+   subtasks:[{t:'Pantalla de enrolamiento TOTP',done:true},{t:'Validación de código de 6 dígitos',done:true},{t:'Códigos de respaldo descargables',done:false},{t:'Tests E2E del flujo completo',done:false}],
+   events:[{ty:'CREATED',u:'u2',ts:day(4)},{ty:'ASSIGNED',u:'u2',to:'u3',ts:day(4)},{ty:'STATUS',u:'u3',from:'TODO',to:'IN_PROGRESS',ts:day(3)},{ty:'COMMENT',u:'u2',txt:'Prioriza la compatibilidad con 1Password, lo pidió el cliente.',ts:day(1)}]},
+  {id:'t2', num:128, epicId:'e1', title:'Bloqueo de cuenta tras 5 intentos fallidos', desc:'Política de bloqueo temporal (15 min) con aviso por correo al usuario.',
+   status:'BLOCKED', priority:'MEDIUM', assignee:'u4', createdBy:'u2', due: inDays(1), spent: 2*3600+10*60, blocked: 3*3600,
+   subtasks:[{t:'Contador de intentos en Redis',done:true},{t:'Plantilla de correo de aviso',done:false}],
+   events:[{ty:'CREATED',u:'u2',ts:day(6)},{ty:'ASSIGNED',u:'u2',to:'u4',ts:day(6)},{ty:'STATUS',u:'u4',from:'TODO',to:'IN_PROGRESS',ts:day(5)},{ty:'QUESTION',u:'u4',txt:'¿El bloqueo aplica también a los accesos por API o solo al portal web?',ts:hr(5)}]},
+  {id:'t3', num:141, epicId:'e2', title:'Descarga de facturas en PDF desde el panel', desc:'El cliente debe poder descargar sus últimas 24 facturas en PDF con firma digital.',
+   status:'TODO', priority:'MEDIUM', assignee:null, createdBy:'u1', due: inDays(6), spent:0, blocked:0,
+   subtasks:[{t:'Endpoint GET /invoices/:id/pdf',done:false},{t:'Listado con paginación',done:false}],
+   events:[{ty:'CREATED',u:'u1',ts:day(2)}]},
+  {id:'t4', num:139, epicId:'e2', title:'Editar datos fiscales con validación de NIF/CIF', desc:'Formulario de datos fiscales con validación en tiempo real y verificación contra el censo.',
+   status:'DONE', priority:'LOW', assignee:'u5', createdBy:'u2', due: day(1), spent: 6*3600+45*60, blocked:0, pr:'https://github.com/wellq/portal/pull/412',
+   subtasks:[{t:'Validador NIF/CIF',done:true},{t:'Mensajes de error accesibles',done:true}],
+   events:[{ty:'CREATED',u:'u2',ts:day(9)},{ty:'ASSIGNED',u:'u2',to:'u5',ts:day(9)},{ty:'COMPLETED',u:'u5',ts:day(1)}]},
+  {id:'t5', num:145, epicId:'e3', title:'Matching automático de transferencias SEPA', desc:'Cruce automático de transferencias entrantes contra facturas pendientes usando referencia estructurada. Tolerancia de ±0,01 €.',
+   status:'IN_PROGRESS', priority:'URGENT', assignee:'u4', createdBy:'u2', due: day(1)+86400000*0, spent: 9*3600+12*60, blocked: 55*60,
+   subtasks:[{t:'Parser de extractos CAMT.053',done:true},{t:'Motor de matching por referencia',done:true},{t:'Cola de revisión manual',done:false},{t:'Informe diario de no conciliados',done:false}],
+   events:[{ty:'CREATED',u:'u2',ts:day(8)},{ty:'ASSIGNED',u:'u2',to:'u4',ts:day(8)},{ty:'STATUS',u:'u4',from:'TODO',to:'IN_PROGRESS',ts:day(7)}]},
+  {id:'t6', num:143, epicId:'e3', title:'Alertas de descuadre superior a 50 €', desc:'Notificar al equipo de finanzas cuando el descuadre diario supere el umbral configurable.',
+   status:'TODO', priority:'HIGH', assignee:'u3', createdBy:'u1', due: inDays(4), spent:0, blocked:0,
+   subtasks:[{t:'Umbral configurable por app',done:false}],
+   events:[{ty:'CREATED',u:'u1',ts:day(3)},{ty:'ASSIGNED',u:'u1',to:'u3',ts:day(3)}]},
+  {id:'t7', num:137, epicId:'e4', title:'Reintentos exponenciales en webhooks fallidos', desc:'Hasta 6 reintentos con backoff exponencial y firma HMAC en cada entrega.',
+   status:'REDIRECTED', priority:'HIGH', assignee:'u3', createdBy:'u2', due: inDays(3), spent: 1*3600+30*60, blocked:0,
+   subtasks:[{t:'Scheduler de reintentos',done:true},{t:'Panel de entregas fallidas',done:false}],
+   events:[{ty:'CREATED',u:'u2',ts:day(7)},{ty:'ASSIGNED',u:'u2',to:'u5',ts:day(7)},{ty:'REDIRECTED',u:'u5',to:'u3',txt:'Necesita conocimiento del front del panel de entregas; Diego lo tiene fresco.',ts:day(2)}]},
+  {id:'t8', num:146, epicId:'e5', title:'Mapa en vivo con posiciones GPS cada 30 s', desc:'Websocket con posiciones de la flota y clustering de marcadores en el mapa.',
+   status:'IN_PROGRESS', priority:'MEDIUM', assignee:'u5', createdBy:'u1', due: inDays(9), spent: 3*3600+5*60, blocked:0,
+   subtasks:[{t:'Canal WS /fleet/positions',done:true},{t:'Clustering de marcadores',done:false},{t:'Modo ahorro de datos',done:false}],
+   events:[{ty:'CREATED',u:'u1',ts:day(5)},{ty:'ASSIGNED',u:'u1',to:'u5',ts:day(5)},{ty:'STATUS',u:'u5',from:'TODO',to:'IN_PROGRESS',ts:day(4)}]},
+  {id:'t9', num:134, epicId:'e5', title:'Firma digital de albaranes en la entrega', desc:'Captura de firma táctil y foto del paquete como prueba de entrega.',
+   status:'TODO', priority:'LOW', assignee:null, createdBy:'u1', due: inDays(14), spent:0, blocked:0,
+   subtasks:[], events:[{ty:'CREATED',u:'u1',ts:day(1)}]},
+];
+
+let INCN = 62;
+const INCIDENTS = [
+  {id:'i1', num:57, appId:'a2', title:'Timeout al conciliar extractos de más de 5 000 líneas', desc:'El proceso de conciliación supera los 30 s y el worker corta la tarea. Ocurre con los extractos de fin de mes de dos clientes grandes.',
+   category:'CRITICAL_ERROR', severity:'CRITICAL', status:'IN_PROGRESS', reporter:'u2', assignee:'u4', ts:hr(26),
+   comments:[{u:'u4', txt:'Reproducido con el extracto de 8 200 líneas. El cuello está en el parser, no en la BD.', ts:hr(20)}]},
+  {id:'i2', num:58, appId:'a1', title:'El selector de idioma no persiste tras cerrar sesión', desc:'Al volver a entrar, el portal vuelve a español aunque el usuario eligió inglés.',
+   category:'NON_CRITICAL_ERROR', severity:'LOW', status:'OPEN', reporter:'u3', assignee:null, ts:hr(8), comments:[]},
+  {id:'i3', num:55, appId:'a1', title:'Añadir exportación de movimientos a Excel', desc:'Varios clientes piden exportar el histórico de movimientos a XLSX además del CSV actual.',
+   category:'NEW_FEATURE', severity:'MEDIUM', status:'UNDER_REVIEW', reporter:'u1', assignee:'u3', ts:day(3),
+   comments:[{u:'u3', txt:'Propuesta lista con la librería actual de informes. Pendiente de visto bueno.', ts:day(1)}]},
+  {id:'i4', num:52, appId:'a3', title:'Contraste insuficiente en el mapa nocturno', desc:'Los marcadores grises apenas se distinguen sobre el tema oscuro del mapa.',
+   category:'USABILITY_ISSUE', severity:'MEDIUM', status:'RESOLVED', reporter:'u5', assignee:'u5', ts:day(6), comments:[]},
+  {id:'i5', num:60, appId:'a2', title:'Webhook duplicado cuando el receptor responde 5xx lento', desc:'Si el receptor tarda >10 s y devuelve 502, el evento se entrega dos veces.',
+   category:'CRITICAL_ERROR', severity:'HIGH', status:'OPEN', reporter:'u4', assignee:null, ts:hr(3), comments:[]},
+];
+
+/* Notificaciones iniciales por usuario */
+let NID = 1;
+const NOTIFS = [
+  {id:'n'+(NID++), users:['u3'], type:'ASSIGNMENT', title:null, body:{k:'assigned_you', by:'u1', tk:'t6'}, ts:day(3), read:true,  link:{t:'ticket', id:'t6'}},
+  {id:'n'+(NID++), users:['u1','u2'], type:'QUESTION', title:null, body:{k:'asked_in', by:'u4', app:'a1', tk:'t2'}, ts:hr(5), read:false, link:{t:'ticket', id:'t2'}},
+  {id:'n'+(NID++), users:['u1','u2'], type:'INCIDENT', title:null, body:{k:'inc_new_by', by:'u4', app:'a2', inc:'i5'}, ts:hr(3), read:false, link:{t:'incident', id:'i5'}},
+  {id:'n'+(NID++), users:['u1','u2'], type:'COMPLETION', title:null, body:{k:'completed_in', by:'u5', app:'a1', tk:'t4'}, ts:day(1), read:true, link:{t:'ticket', id:'t4'}},
+  {id:'n'+(NID++), users:['u3'], type:'REDIRECT', title:null, body:{k:'assigned_you', by:'u5', tk:'t7'}, ts:day(2), read:false, link:{t:'ticket', id:'t7'}},
+];
+</script>
+<script>
+/* ============================ HELPERS ============================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rel = ts => {
+  const d = Math.max(0, Date.now()-ts);
+  if (d < 90e3) return t('now');
+  if (d < 3600e3) return t('min_ago',{n:Math.round(d/60e3)});
+  if (d < 86400e3) return t('h_ago',{n:Math.round(d/3600e3)});
+  return t('d_ago',{n:Math.round(d/86400e3)});
+};
+const fmtDur = s => { const h=Math.floor(s/3600), m=Math.floor(s%3600/60); return h? h+' h '+String(m).padStart(2,'0')+' m' : m+' min'; };
+const fmtTimer = s => [Math.floor(s/3600), Math.floor(s%3600/60), s%60].map(n=>String(n).padStart(2,'0')).join(':');
+const dueInfo = ts => {
+  if(!ts) return null;
+  const days = Math.ceil((ts - Date.now())/86400e3);
+  const d = new Date(ts), lbl = d.toLocaleDateString(LANG==='es'?'es-ES':'en-GB',{day:'numeric',month:'short'});
+  return {late: days<0, lbl, days};
+};
+const STCLS = {TODO:'c-todo', IN_PROGRESS:'c-prog', BLOCKED:'c-block', REDIRECTED:'c-redir', DONE:'c-done'};
+const ISCLS = {OPEN:'c-red', IN_PROGRESS:'c-prog', UNDER_REVIEW:'c-block', RESOLVED:'c-done', CLOSED:'c-todo', REOPENED:'c-red'};
+const stChip = s => `<span class="chip ${STCLS[s]}"><span class="dot"></span>${t('s_'+s)}</span>`;
+const isChip = s => `<span class="chip ${ISCLS[s]}"><span class="dot"></span>${t('is_'+s)}</span>`;
+const sevChip = s => `<span class="chip ${ {CRITICAL:'c-red',HIGH:'c-block',MEDIUM:'c-block',LOW:'c-done'}[s] }">${t('sev_'+s)}</span>`;
+const av = (u, px=34) => u ? `<span class="avatar" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.38)}px;background:${u.color}">${u.initials}</span>`
+                          : `<span class="avatar" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.38)}px;background:var(--line);color:var(--mut)">–</span>`;
+const roleColor = r => ({ADMIN:'var(--acc)',GROUP_LEADER:'var(--indigo)',DEVELOPER:'var(--green)'}[r]);
+const roleSoft  = r => ({ADMIN:'var(--acc-soft)',GROUP_LEADER:'var(--indigo-soft)',DEVELOPER:'var(--green-soft)'}[r]);
+
+/* iconos (stroke 24) */
+const IC = {
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/>',
+  folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+  alert:'<path d="M12 3 2.5 20h19Z"/><path d="M12 10v4"/><path d="M12 17.2v.1"/>',
+  users:'<circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c.6-3.4 3.1-5.2 6.2-5.2s5.6 1.8 6.2 5.2"/><circle cx="17.2" cy="9.4" r="2.6"/><path d="M16.4 14.9c2.6.2 4.4 1.8 4.9 4.6"/>',
+  bell:'<path d="M6 9.5a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/>',
+  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M4.5 6.2l1.7 1.7M17.8 17.6l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.5 17.8l1.7-1.7M17.8 6.4l1.7-1.7"/>',
+  chevL:'<path d="m14.5 5.5-6.5 6.5 6.5 6.5"/>',
+  chevR:'<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
+  check:'<path d="m4.5 12.5 5 5 10-11"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  q:'<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.6 2.9c-.8.5-1.2 1-1.2 1.9"/><path d="M12 17v.1"/>',
+  redir:'<path d="M4 7h11l-3-3M20 17H9l3 3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  doc:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/>',
+  play:'<path d="M8 5.5v13l10-6.5Z"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4Z"/>',
+  flag:'<path d="M5 21V4"/><path d="M5 4h13l-2.5 4L18 12H5"/>',
+  logout:'<path d="M14 4h-8v16h8"/><path d="M10 12h11l-3.5-3.5M21 12l-3.5 3.5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+};
+const ic = (n,sw=1.7) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ============================ STATE ============================ */
+let state = { user:null, tab:'home', stack:[], view:{n:'login'}, tf:'all', incf:'all', pushDemo:true };
+const isLead = () => state.user && (state.user.role==='ADMIN' || state.user.role==='GROUP_LEADER');
+const epic = id => EPICS.find(e=>e.id===id);
+const app  = id => APPS.find(a=>a.id===id);
+const tk   = id => TICKETS.find(x=>x.id===id);
+const inc  = id => INCIDENTS.find(x=>x.id===id);
+const appOfTicket = x => app(epic(x.epicId).appId);
+const myNotifs = () => NOTIFS.filter(n=>n.users.includes(state.user.id)).sort((a,b)=>b.ts-a.ts);
+const unread = () => state.user ? myNotifs().filter(n=>!n.read).length : 0;
+
+function go(view){ state.stack.push(state.view); state.view = view; render(); }
+function back(){ if(state.stack.length){ state.view = state.stack.pop(); render(); } }
+function setTab(tab){ state.tab = tab; state.stack = []; state.view = {n:tab}; render(); }
+
+/* ============================ NOTIFICATIONS ============================ */
+function notifBody(n){
+  const b = n.body; const by = U(b.by)?.name || '';
+  if (b.k==='assigned_you'){ const x = b.tk ? tk(b.tk) : (b.inc ? inc(b.inc) : null); return `${by} ${t('assigned_you')}: “${x?x.title:''}”`; }
+  const where = b.app ? app(b.app).name : '';
+  const what = b.tk ? `“${tk(b.tk)?.title||''}”` : (b.inc ? `“${inc(b.inc)?.title||''}”` : '');
+  return `${by} ${t(b.k)} ${where}: ${what}`;
+}
+const NTYPE = {
+  ASSIGNMENT:{icon:'doc',  cls:'c-prog'},  QUESTION:{icon:'q', cls:'c-block'},
+  REDIRECT:{icon:'redir', cls:'c-redir'},  COMPLETION:{icon:'check', cls:'c-done'},
+  SYSTEM:{icon:'plus', cls:'c-prog'},      INCIDENT:{icon:'alert', cls:'c-red'},
+};
+function addNotif(users, type, body, link){
+  const n = {id:'n'+(NID++), users, type, body, ts:Date.now(), read:false, link};
+  NOTIFS.push(n);
+  if (state.user && users.includes(state.user.id)){ showToast(n); renderHead(); if(state.view.n==='notifs') render(); }
+  return n;
+}
+function showToast(n){
+  const w = $('#toasts'); if(!w) return;
+  const ty = NTYPE[n.type];
+  const el = document.createElement('button');
+  el.className = 'toast';
+  el.innerHTML = `<span class="nic ${ty.cls}">${ic(ty.icon)}</span>
+    <span class="tb"><span class="tapp">CoreStream · ${t('now')}</span>
+    <span class="tt1">${t('n_'+n.type)}</span><span class="tt2">${esc(notifBody(n))}</span></span>`;
+  el.onclick = () => { n.read = true; openLink(n.link); dismiss(); };
+  let tmr = setTimeout(dismiss, 5200);
+  function dismiss(){ clearTimeout(tmr); el.classList.add('hide'); setTimeout(()=>el.remove(), 320); }
+  w.prepend(el);
+  while (w.children.length > 2) w.lastChild.remove();
+}
+function openLink(l){
+  if(!l) return;
+  if (l.t==='ticket'){ const x = tk(l.id); if(x){ state.tab = isLead()? 'projects':'home'; state.stack=[{n:state.tab}]; state.view={n:'ticket', id:l.id}; render(); } }
+  if (l.t==='incident'){ state.tab='incidents'; state.stack=[{n:'incidents'}]; state.view={n:'incident', id:l.id}; render(); }
+}
+
+/* ============================ ACTIVITY / EVENTS ============================ */
+function pushEvent(x, ev){ x.events.push(Object.assign({ts:Date.now()}, ev)); }
+const EVIC = {
+  CREATED:{i:'plus',c:'c-done'}, ASSIGNED:{i:'doc',c:'c-prog'}, STATUS:{i:'redir',c:'c-todo'},
+  QUESTION:{i:'q',c:'c-block'}, RESOLVED:{i:'check',c:'c-done'}, REDIRECTED:{i:'redir',c:'c-redir'},
+  COMPLETED:{i:'check',c:'c-done'}, COMMENT:{i:'msg',c:'c-todo'},
+};
+function evLine(ev){
+  const u = U(ev.u)?.name || '?';
+  switch(ev.ty){
+    case 'CREATED': return `<b>${u}</b> <span class="aw">${t('ev_CREATED')}</span>`;
+    case 'ASSIGNED': return `<b>${u}</b> <span class="aw">${t('ev_ASSIGNED')}</span> <b>${U(ev.to)?.name||''}</b>`;
+    case 'STATUS': return `<b>${u}</b> <span class="aw">${t('ev_STATUS')}</span>: ${t('s_'+ev.from)} → <b>${t('s_'+ev.to)}</b>`;
+    case 'QUESTION': return `<b>${u}</b> <span class="aw">${t('ev_QUESTION')}</span>`;
+    case 'RESOLVED': return `<b>${u}</b> <span class="aw">${t('ev_RESOLVED')}</span>`;
+    case 'REDIRECTED': return `<b>${u}</b> <span class="aw">${t('ev_REDIRECTED')}</span> <b>${U(ev.to)?.name||''}</b>`;
+    case 'COMPLETED': return `<b>${u}</b> <span class="aw">${t('ev_COMPLETED')}</span> 🎉`;
+    case 'COMMENT': return `<b>${u}</b> <span class="aw">${t('ev_COMMENT')}</span>`;
+  }
+}
+</script>
+<script>
+/* ============================ HEADER + TABS ============================ */
+const VIEWTITLES = () => ({
+  home: state.user ? `${t('hello')}, ${state.user.name.split(' ')[0]}` : '',
+  projects: t('projects'), incidents: isLead()? t('incidents') : t('my_incidents'),
+  team: t('team'), notifs: t('notifications'),
+});
+function renderHead(){
+  const h = $('#apphead');
+  if (!state.user){ h.innerHTML=''; h.className=''; return; }
+  h.className = 'apphead';
+  const root = ['home','projects','incidents','team'].includes(state.view.n);
+  const titles = VIEWTITLES();
+  let title = titles[state.view.n] ?? '';
+  let sub = '';
+  if (state.view.n==='home') sub = isLead()? t('home_sub_admin') : t('home_sub_dev');
+  if (state.view.n==='project'){ const a = app(state.view.id); title = a.name; sub = t('proj_status'); }
+  if (state.view.n==='ticket'){ const x = tk(state.view.id); title = 'T-'+x.num; sub = appOfTicket(x).name; }
+  if (state.view.n==='incident'){ const i = inc(state.view.id); title = 'INC-'+i.num; sub = app(i.appId).name; }
+  const un = unread();
+  h.innerHTML = `
+    ${root? '' : `<button class="backbtn" data-a="back" aria-label="${t('cancel')}">${ic('chevL')}</button>`}
+    <div class="ttl"><h1>${esc(title)}</h1>${sub?`<div class="sub">${esc(sub)}</div>`:''}</div>
+    <button class="iconbtn" data-a="notifs" aria-label="${t('notifications')}">${ic('bell')}${un?`<span class="badge">${un}</span>`:''}</button>
+    <button class="iconbtn" data-a="settings" aria-label="${t('settings')}">${ic('gear')}</button>`;
+}
+function renderTabs(){
+  const tb = $('#tabbar');
+  if (!state.user){ tb.innerHTML=''; tb.className=''; return; }
+  tb.className = 'tabbar';
+  const tabs = isLead()
+    ? [['home','home','tab_home'],['projects','folder','tab_projects'],['incidents','alert','tab_incidents'],['team','users','tab_team']]
+    : [['home','home','tab_work'],['projects','folder','tab_projects'],['incidents','alert','tab_incidents']];
+  tb.innerHTML = tabs.map(([id,icn,lbl]) =>
+    `<button data-a="tab" data-id="${id}" class="${state.tab===id?'on':''}" aria-label="${t(lbl)}">${ic(icn, state.tab===id?2:1.7)}<span>${t(lbl)}</span></button>`).join('');
+}
+
+/* ============================ SCREENS ============================ */
+function rLogin(){
+  return `<div class="login">
+    <div class="lbrand">
+      <div class="mark">C</div>
+      <h1>CoreStream</h1>
+      <p class="lsub">${t('login_sub')}</p>
+    </div>
+    <div class="stack" style="margin-top:26px">
+      ${USERS.slice(0,3).map(u=>`
+        <button class="rolecard" data-a="login" data-id="${u.id}">
+          ${av(u,46)}
+          <span class="rinfo">
+            <span class="rname">${u.name}</span>
+            <span class="rmeta">${esc(u.specialty)}</span><br>
+            <span class="rolechip" style="color:${roleColor(u.role)};background:${roleSoft(u.role)}">${t('role_'+u.role)}</span>
+          </span>
+          <span class="rchev">${ic('chevR')}</span>
+        </button>`).join('')}
+    </div>
+    <p style="margin-top:auto;text-align:center;font-size:11.5px;color:var(--faint)">${t('demo_note')}</p>
+  </div>`;
+}
+
+function ticketRow(x, showApp){
+  const d = dueInfo(x.due);
+  const a = U(x.assignee);
+  return `<button class="tkt ${x.status==='BLOCKED'?'blocked':''}" data-a="ticket" data-id="${x.id}">
+    <span class="prio p-${x.priority}" title="${t('p_'+x.priority)}"></span>
+    <span class="tk-b">
+      <span class="tk-t">${esc(x.title)}</span>
+      <span class="tk-m">
+        <span class="mono" style="color:var(--faint)">T-${x.num}</span>
+        ${showApp?`<span>${esc(appOfTicket(x).name)}</span>`:''}
+        ${stChip(x.status)}
+        ${d?`<span class="${d.late&&x.status!=='DONE'?'due-late':''}">${d.late&&x.status!=='DONE'?'⚠ ':''}${d.lbl}</span>`:''}
+      </span>
+    </span>
+    ${av(a,26)}
+  </button>`;
+}
+
+function rHome(){
+  const u = state.user;
+  if (isLead()){
+    const open = TICKETS.filter(x=>x.status!=='DONE');
+    const blocked = open.filter(x=>x.status==='BLOCKED');
+    const late = open.filter(x=>x.due && x.due < Date.now());
+    const attention = [...blocked, ...late.filter(x=>!blocked.includes(x))].slice(0,4);
+    const openInc = INCIDENTS.filter(i=>['OPEN','REOPENED'].includes(i.status) && (i.severity==='CRITICAL'||i.severity==='HIGH'));
+    return `
+      <div class="statgrid" style="margin-top:8px">
+        <div class="stat"><div class="n">${APPS.length}</div><div class="l">${t('st_apps')}</div></div>
+        <div class="stat"><div class="n">${open.length}</div><div class="l">${t('st_open')}</div></div>
+        <div class="stat"><div class="n" style="color:var(--amber)">${blocked.length}</div><div class="l">${t('st_blocked')}</div></div>
+        <div class="stat"><div class="n" style="color:var(--red)">${late.length}</div><div class="l">${t('st_late')}</div></div>
+      </div>
+      <div class="seclbl">${t('proj_status')}</div>
+      <div class="stack">${APPS.map(a=>appRow(a)).join('')}</div>
+      <div class="seclbl">${t('attention')}</div>
+      <div class="stack">
+        ${attention.map(x=>ticketRow(x,true)).join('')}
+        ${openInc.map(i=>incRow(i)).join('')}
+        ${(!attention.length && !openInc.length)?`<div class="empty">✓ ${t('no_notifs').split('\n')[0]}</div>`:''}
+      </div>`;
+  }
+  // developer home = mi trabajo
+  const mine = TICKETS.filter(x=>x.assignee===u.id && x.status!=='DONE').sort((a,b)=>(a.due||9e15)-(b.due||9e15));
+  const prog = mine.filter(x=>x.status==='IN_PROGRESS');
+  const doneWeek = TICKETS.filter(x=>x.assignee===u.id && x.status==='DONE').length;
+  const myInc = INCIDENTS.filter(i=>i.assignee===u.id && !['RESOLVED','CLOSED'].includes(i.status));
+  return `
+    <div class="statgrid" style="margin-top:8px">
+      <div class="stat"><div class="n">${mine.length}</div><div class="l">${t('st_mine')}</div></div>
+      <div class="stat"><div class="n" style="color:var(--acc)">${prog.length}</div><div class="l">${t('st_prog')}</div></div>
+      <div class="stat"><div class="n" style="color:var(--green)">${doneWeek}</div><div class="l">${t('st_done_week')}</div></div>
+      <div class="stat"><div class="n" style="color:var(--amber)">${myInc.length}</div><div class="l">${t('my_incidents')}</div></div>
+    </div>
+    <div class="seclbl">${t('st_mine')}</div>
+    <div class="stack">
+      ${mine.length? mine.map(x=>ticketRow(x,true)).join('') : `<div class="empty"><div class="eic">🎉</div>${t('empty_tickets')}</div>`}
+    </div>
+    ${myInc.length?`<div class="seclbl">${t('my_incidents')}</div><div class="stack">${myInc.map(i=>incRow(i)).join('')}</div>`:''}`;
+}
+
+function appRow(a){
+  const tks = TICKETS.filter(x=>epic(x.epicId).appId===a.id);
+  const done = tks.filter(x=>x.status==='DONE').length;
+  const late = tks.filter(x=>x.status!=='DONE' && x.due && x.due<Date.now()).length;
+  const pct = tks.length? Math.round(done/tks.length*100) : 0;
+  const eps = EPICS.filter(e=>e.appId===a.id).length;
+  return `<button class="rowcard" data-a="project" data-id="${a.id}">
+    <span class="appicon" style="background:${a.color}">${a.code}</span>
+    <span class="rc-body">
+      <span class="rc-t">${esc(a.name)}</span>
+      <span class="rc-s">${eps} ${t('epics')} · ${tks.length-done} ${t('pending')}${late?` · <span class="due-late">${late} ${t('overdue')}</span>`:''}</span>
+      <span class="progress" style="margin-top:8px"><i style="width:${pct}%"></i></span>
+    </span>
+    <span class="mono" style="font-size:12px;color:var(--mut)">${pct}%</span>
+  </button>`;
+}
+
+function rProjects(){
+  return `<div class="stack" style="margin-top:8px">${APPS.map(a=>appRow(a)).join('')}</div>`;
+}
+
+function rProject(id){
+  const a = app(id);
+  const eps = EPICS.filter(e=>e.appId===id);
+  return eps.map(e=>{
+    const tks = TICKETS.filter(x=>x.epicId===e.id);
+    const done = tks.filter(x=>x.status==='DONE').length;
+    const pct = tks.length? Math.round(done/tks.length*100):0;
+    return `<div class="epic" style="margin-top:12px">
+      <div class="epic-head">
+        <span class="eh-body">
+          <span class="eh-t">${esc(e.name)}</span>
+          <span class="eh-m">${done} ${t('of')} ${tks.length} ${t('tickets')} · ${pct}%</span>
+          <span class="progress" style="margin-top:8px"><i style="width:${pct}%"></i></span>
+        </span>
+      </div>
+      <div class="epic-tickets">
+        ${tks.map(x=>ticketRow(x,false)).join('')}
+        ${isLead()?`<button class="btn btn-ghost" style="padding:10px" data-a="newTicketSheet" data-id="${e.id}">${ic('plus')} ${t('new_ticket')}</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function rTicket(id){
+  const x = tk(id); const u = state.user;
+  const e = epic(x.epicId), a = app(e.appId);
+  const asg = U(x.assignee);
+  const d = dueInfo(x.due);
+  const mine = x.assignee === u.id;
+  const doneSt = x.subtasks.filter(s=>s.done).length;
+  const lastQ = [...x.events].reverse().find(ev=>ev.ty==='QUESTION');
+
+  let actions = '';
+  if (isLead()){
+    actions = `<button class="btn btn-acc" data-a="assignSheet" data-id="${x.id}">${ic('users')} ${x.assignee? t('reassign'): t('assign')}</button>`;
+  } else if (mine){
+    if (x.status==='TODO' || x.status==='REDIRECTED')
+      actions = `<button class="btn btn-acc" data-a="startWork" data-id="${x.id}">${ic('play')} ${t('start')}</button>`;
+    else if (x.status==='IN_PROGRESS')
+      actions = `<button class="btn btn-green" data-a="completeSheet" data-id="${x.id}">${ic('check')} ${t('complete')}</button>
+        <div class="btnrow" style="margin-top:10px">
+          <button class="btn btn-amber" data-a="questionSheet" data-id="${x.id}">${ic('q')} ${t('raise_q')}</button>
+          <button class="btn btn-indigo" data-a="redirectSheet" data-id="${x.id}">${ic('redir')} ${t('redirect')}</button>
+        </div>`;
+    else if (x.status==='BLOCKED')
+      actions = `<button class="btn btn-green" data-a="resumeSheet" data-id="${x.id}">${ic('play')} ${t('resume')}</button>`;
+  } else {
+    actions = `<div class="empty" style="padding:14px">${ic('eye')} ${t('view_only')}</div>`;
+  }
+
+  return `
+    <div class="d-crumb">${esc(a.name)} ${ic('chevR')} ${esc(e.name)} ${ic('chevR')} <span class="mono">T-${x.num}</span></div>
+    <h2 class="d-title">${esc(x.title)}</h2>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:0 2px 12px">
+      ${stChip(x.status)}
+      <span class="chip c-todo"><span class="prio p-${x.priority}"></span>${t('p_'+x.priority)}</span>
+      ${d && d.late && x.status!=='DONE' ? `<span class="chip c-red">⚠ ${t('overdue')}</span>`:''}
+    </div>
+
+    ${(x.status==='IN_PROGRESS' || x.status==='BLOCKED') ? `
+      <div class="timer ${x.status==='BLOCKED'?'paused':(x.running?'running':'')}" style="margin-bottom:12px">
+        <div><div class="tlbl">${x.status==='BLOCKED'? t('blocked_needs') : t('time_spent')}</div>
+        <div class="tt mono" id="timerval">${fmtTimer(x.spent)}</div></div>
+        <span class="pulse ${x.status==='BLOCKED'?'amber':''}"></span>
+      </div>`:''}
+
+    ${x.status==='BLOCKED' && lastQ ? `<div class="act" style="padding:0 0 10px"><div class="ab"><div class="quote">“${esc(lastQ.txt)}” — ${U(lastQ.u)?.name}</div></div></div>`:''}
+
+    <div class="card">
+      <div class="kv"><span class="k">${t('assignee')}</span><span class="v">${asg? av(asg,22)+' '+asg.name : `<span style="color:var(--faint)">${t('unassigned')}</span>`}</span></div>
+      <div class="kv"><span class="k">${t('due')}</span><span class="v ${d&&d.late&&x.status!=='DONE'?'due-late':''}">${d? d.lbl : '—'}</span></div>
+      <div class="kv"><span class="k">${t('time_spent')}</span><span class="v mono">${fmtDur(x.spent)}</span></div>
+      ${x.blocked?`<div class="kv"><span class="k">${t('time_blocked')}</span><span class="v mono" style="color:var(--amber)">${fmtDur(x.blocked)}</span></div>`:''}
+      ${x.pr?`<div class="kv"><span class="k">PR</span><span class="v" style="color:var(--acc);max-width:190px;overflow:hidden;text-overflow:ellipsis">${esc(x.pr.replace('https://',''))}</span></div>`:''}
+    </div>
+
+    <div class="seclbl">${t('description')}</div>
+    <div class="card desc">${esc(x.desc)}</div>
+
+    <div class="seclbl">${t('subtasks')} · ${doneSt}/${x.subtasks.length}</div>
+    <div class="card" style="padding:6px 14px">
+      ${x.subtasks.length? x.subtasks.map((s,i)=>`
+        <button class="sub ${s.done?'done':''}" data-a="toggleSub" data-id="${x.id}" data-i="${i}" ${(mine||isLead())?'':'disabled'}>
+          <span class="box">${s.done? ic('check',2.4):''}</span><span class="st">${esc(s.t)}</span>
+        </button>`).join('') : `<div class="empty" style="padding:14px">${t('empty_tickets')}</div>`}
+    </div>
+
+    <div class="seclbl">${t('activity')}</div>
+    <div class="card" style="padding:6px 14px">
+      ${[...x.events].sort((a,b)=>b.ts-a.ts).map(ev=>{
+        const m = EVIC[ev.ty];
+        return `<div class="act"><span class="aic ${m.c}">${ic(m.i)}</span>
+          <span class="ab">${evLine(ev)}
+          ${ev.txt?`<div class="quote" style="${ev.ty==='COMMENT'||ev.ty==='REDIRECTED'?'background:var(--gray-soft);color:var(--mut);border-color:var(--line)':''}">“${esc(ev.txt)}”</div>`:''}
+          <div class="at">${rel(ev.ts)}</div></span></div>`;
+      }).join('')}
+    </div>
+
+    <div style="margin-top:16px">${actions}</div>`;
+}
+
+function incRow(i){
+  const a = app(i.appId);
+  return `<button class="rowcard inc s-${i.severity}" data-a="incident" data-id="${i.id}">
+    <span class="rc-body" style="padding-left:6px">
+      <span class="rc-t">${esc(i.title)}</span>
+      <span class="rc-s"><span class="mono" style="color:var(--faint)">INC-${i.num}</span> · ${esc(a.name)} · ${rel(i.ts)}</span>
+      <span style="display:flex;gap:6px;margin-top:7px">${isChip(i.status)} ${sevChip(i.severity)}</span>
+    </span>
+    ${av(U(i.assignee),26)}
+  </button>`;
+}
+
+function rIncidents(){
+  const flt = [['all','all'],['OPEN','is_OPEN'],['IN_PROGRESS','is_IN_PROGRESS'],['UNDER_REVIEW','is_UNDER_REVIEW'],['RESOLVED','is_RESOLVED']];
+  let list = isLead()? INCIDENTS : INCIDENTS.filter(i=>i.assignee===state.user.id || i.reporter===state.user.id || !i.assignee);
+  if (state.incf!=='all') list = list.filter(i=>i.status===state.incf || (state.incf==='OPEN'&&i.status==='REOPENED'));
+  list = [...list].sort((a,b)=>b.ts-a.ts);
+  return `
+    <div class="filters" style="margin-top:8px">${flt.map(([v,l])=>`<button class="fchip ${state.incf===v?'on':''}" data-a="incf" data-id="${v}">${t(l)}</button>`).join('')}</div>
+    <div class="stack">${list.length? list.map(incRow).join('') : `<div class="empty"><div class="eic">🗂</div>${t('empty_tickets')}</div>`}</div>`;
+}
+
+function rIncident(id){
+  const i = inc(id); const u = state.user;
+  const rep = U(i.reporter), asg = U(i.assignee);
+  const mine = i.assignee===u.id;
+  let actions = '';
+  if (['OPEN','REOPENED'].includes(i.status)){
+    actions = isLead()
+      ? `<button class="btn btn-acc" data-a="incAssignSheet" data-id="${i.id}">${ic('users')} ${t('assign')}</button>`
+      : `<button class="btn btn-acc" data-a="incTake" data-id="${i.id}">${ic('play')} ${t('take')}</button>`;
+  } else if (i.status==='IN_PROGRESS' && (mine || isLead())){
+    actions = `<button class="btn btn-acc" data-a="incStatus" data-id="${i.id}" data-s="UNDER_REVIEW">${ic('eye')} ${t('to_review')}</button>`;
+  } else if (i.status==='UNDER_REVIEW' && isLead()){
+    actions = `<button class="btn btn-green" data-a="incStatus" data-id="${i.id}" data-s="RESOLVED">${ic('check')} ${t('resolve_inc')}</button>`;
+  } else if (i.status==='RESOLVED' && isLead()){
+    actions = `<div class="btnrow">
+      <button class="btn btn-ghost" data-a="incStatus" data-id="${i.id}" data-s="REOPENED">${t('reopen')}</button>
+      <button class="btn btn-acc" data-a="incStatus" data-id="${i.id}" data-s="CLOSED">${t('close_inc')}</button></div>`;
+  } else if (!isLead() && !mine){
+    actions = `<div class="empty" style="padding:14px">${ic('eye')} ${t('view_only')}</div>`;
+  }
+  return `
+    <div class="d-crumb">${esc(app(i.appId).name)} ${ic('chevR')} <span class="mono">INC-${i.num}</span> · ${rel(i.ts)}</div>
+    <h2 class="d-title">${esc(i.title)}</h2>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:0 2px 12px">${isChip(i.status)} ${sevChip(i.severity)} <span class="chip c-todo">${t('cat_'+i.category)}</span></div>
+    <div class="card">
+      <div class="kv"><span class="k">${t('reported_by')}</span><span class="v">${av(rep,22)} ${rep.name}</span></div>
+      <div class="kv"><span class="k">${t('assignee')}</span><span class="v">${asg? av(asg,22)+' '+asg.name : `<span style="color:var(--faint)">${t('unassigned')}</span>`}</span></div>
+      <div class="kv"><span class="k">${t('severity')}</span><span class="v">${sevChip(i.severity)}</span></div>
+    </div>
+    <div class="seclbl">${t('description')}</div>
+    <div class="card desc">${esc(i.desc)}</div>
+    ${i.comments.length?`<div class="seclbl">${t('comments')}</div>
+      <div class="card" style="padding:6px 14px">
+      ${i.comments.map(c=>`<div class="act"><span class="aic c-todo">${ic('msg')}</span>
+        <span class="ab"><b>${U(c.u)?.name}</b><div class="quote" style="background:var(--gray-soft);color:var(--mut);border-color:var(--line)">“${esc(c.txt)}”</div>
+        <div class="at">${rel(c.ts)}</div></span></div>`).join('')}</div>`:''}
+    <div style="margin-top:16px">${actions}</div>`;
+}
+
+function rTeam(){
+  return `<div class="stack" style="margin-top:8px">
+    ${USERS.map(m=>{
+      const act = TICKETS.filter(x=>x.assignee===m.id && x.status!=='DONE');
+      const blocked = act.filter(x=>x.status==='BLOCKED').length;
+      return `<div class="member">${av(m,42)}
+        <span class="mb"><span class="mn">${m.name}</span><span class="ms">${esc(m.specialty)}</span><br>
+        <span class="rolechip" style="color:${roleColor(m.role)};background:${roleSoft(m.role)}">${t('role_'+m.role)}</span></span>
+        <span class="load"><span class="n" ${blocked?'style="color:var(--amber)"':''}>${act.length}</span><br><span class="l">${t('tickets')} ${t('active_t')}</span></span>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function rNotifs(){
+  const list = myNotifs();
+  return `
+    <div style="display:flex;justify-content:flex-end;margin:8px 2px 10px">
+      ${list.some(n=>!n.read)?`<button class="readall" data-a="readAll">${t('mark_all')}</button>`:''}
+    </div>
+    <div class="stack">
+      ${list.length? list.map(n=>{
+        const ty = NTYPE[n.type];
+        return `<button class="notif ${n.read?'':'unread'}" data-a="openNotif" data-id="${n.id}">
+          <span class="nic ${ty.cls}">${ic(ty.icon)}</span>
+          <span class="nb"><span class="nt">${t('n_'+n.type)}</span>
+          <span class="nm">${esc(notifBody(n))}</span>
+          <span class="nts">${rel(n.ts)}</span></span>
+          ${n.read?'':'<span class="undot"></span>'}
+        </button>`;
+      }).join('') : `<div class="empty"><div class="eic">🔔</div>${t('no_notifs').replace('\n','<br>')}</div>`}
+    </div>`;
+}
+
+/* ============================ RENDER ============================ */
+function render(){
+  const scr = $('#screen');
+  const v = state.view;
+  renderHead(); renderTabs();
+  scr.innerHTML =
+    v.n==='login'   ? rLogin() :
+    v.n==='home'    ? rHome() :
+    v.n==='projects'? rProjects() :
+    v.n==='project' ? rProject(v.id) :
+    v.n==='ticket'  ? rTicket(v.id) :
+    v.n==='incidents'?rIncidents() :
+    v.n==='incident'? rIncident(v.id) :
+    v.n==='team'    ? rTeam() :
+    v.n==='notifs'  ? rNotifs() : '';
+  scr.scrollTop = 0;
+  if (v.n==='login'){ scr.style.padding='0'; } else { scr.style.padding='4px 16px 96px'; }
+}
+</script>
+<script>
+/* ============================ SHEETS (modales) ============================ */
+let sheetCtx = null;
+function openSheet(html, ctx){ sheetCtx = ctx||null; $('#sheet').innerHTML = '<div class="grab"></div>'+html; $('#sheetwrap').classList.add('open'); }
+function closeSheet(){ $('#sheetwrap').classList.remove('open'); sheetCtx = null; }
+
+function userPickList(exclude){
+  return USERS.filter(u=>u.id!==exclude && u.role!=='ADMIN').map(u=>`
+    <button class="userpick" data-a="pickUser" data-id="${u.id}">
+      ${av(u,36)}<span style="flex:1"><span class="un">${u.name}</span><br><span class="us">${esc(u.specialty)}</span></span>
+      <span class="pickmark" style="color:var(--acc);display:none">${ic('check',2.2)}</span>
+    </button>`).join('');
+}
+function markPicked(id){
+  document.querySelectorAll('.userpick').forEach(el=>{
+    const on = el.dataset.id===id;
+    el.classList.toggle('sel', on);
+    el.querySelector('.pickmark').style.display = on? 'block':'none';
+  });
+  if (sheetCtx) sheetCtx.picked = id;
+}
+
+function sheetAssign(x){
+  openSheet(`<h3>${t('assign_t')}</h3><p class="shsub">“${esc(x.title)}”<br>${t('assign_sub')}</p>
+    ${userPickList(null)}
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-acc" data-a="doAssign">${t('confirm')}</button>
+    </div>`, {ticket:x.id, picked:null});
+}
+function sheetComplete(x){
+  openSheet(`<h3>${t('complete_t')}</h3><p class="shsub">${t('complete_sub')}</p>
+    <div class="fld"><label>${t('pr_link')}</label>
+      <input id="prin" type="url" placeholder="https://github.com/wellq/portal/pull/431" autocomplete="off">
+      <div class="hinterr" id="prerr">${t('pr_invalid')}</div></div>
+    <div class="btnrow" style="margin-top:6px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-green" data-a="doComplete">${ic('check')} ${t('complete')}</button>
+    </div>`, {ticket:x.id});
+  setTimeout(()=>$('#prin')?.focus(), 60);
+}
+function sheetQuestion(x){
+  openSheet(`<h3>${t('q_t')}</h3><p class="shsub">${t('q_sub')}</p>
+    <div class="fld"><textarea id="qin" rows="3" maxlength="500" placeholder="${t('q_ph')}"></textarea>
+      <div class="hinterr" id="qerr">${t('q_short')}</div></div>
+    <div class="btnrow" style="margin-top:6px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-amber" data-a="doQuestion">${ic('q')} ${t('send')}</button>
+    </div>`, {ticket:x.id});
+}
+function sheetResume(x){
+  openSheet(`<h3>${t('rs_t')}</h3><p class="shsub">${t('rs_sub')}</p>
+    <div class="fld"><textarea id="rsin" rows="3" maxlength="500" placeholder="${t('rs_ph')}"></textarea></div>
+    <div class="btnrow" style="margin-top:6px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-green" data-a="doResume">${ic('play')} ${t('resume')}</button>
+    </div>`, {ticket:x.id});
+}
+function sheetRedirect(x){
+  openSheet(`<h3>${t('rd_t')}</h3><p class="shsub">${t('rd_sub')}</p>
+    ${userPickList(state.user.id)}
+    <div class="fld" style="margin-top:10px"><label>${t('rd_reason')}</label>
+      <textarea id="rdin" rows="2" maxlength="500"></textarea>
+      <div class="hinterr" id="rderr">${t('q_short')}</div></div>
+    <div class="btnrow" style="margin-top:6px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-indigo" data-a="doRedirect">${ic('redir')} ${t('confirm')}</button>
+    </div>`, {ticket:x.id, picked:null});
+}
+function sheetNewTicket(e){
+  openSheet(`<h3>${t('new_ticket')}</h3><p class="shsub">${esc(epic(e).name)} — ${t('nt_sub')}</p>
+    <div class="fld"><label>${t('nt_title')}</label><input id="ntin" maxlength="120" placeholder="${t('nt_ph')}">
+      <div class="hinterr" id="nterr">${t('q_short')}</div></div>
+    <div class="fld"><label>${t('priority')}</label>
+      <select id="ntprio">${['LOW','MEDIUM','HIGH','URGENT'].map(p=>`<option value="${p}" ${p==='MEDIUM'?'selected':''}>${t('p_'+p)}</option>`).join('')}</select></div>
+    <div class="fld"><label>${t('assignee')} (${LANG==='es'?'opcional':'optional'})</label>${userPickList(null)}</div>
+    <div class="btnrow" style="margin-top:6px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-acc" data-a="doNewTicket">${ic('plus')} ${t('save')}</button>
+    </div>`, {epic:e, picked:null});
+}
+function sheetIncAssign(i){
+  openSheet(`<h3>${t('assign')} · INC-${i.num}</h3><p class="shsub">“${esc(i.title)}”</p>
+    ${userPickList(null)}
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn btn-ghost" data-a="closeSheet">${t('cancel')}</button>
+      <button class="btn btn-acc" data-a="doIncAssign">${t('confirm')}</button>
+    </div>`, {incident:i.id, picked:null});
+}
+function sheetSettings(){
+  const u = state.user;
+  openSheet(`<h3>${t('settings')}</h3>
+    <div style="display:flex;align-items:center;gap:12px;margin:10px 0 6px">${av(u,44)}
+      <span><b>${u.name}</b><br><span class="rolechip" style="color:${roleColor(u.role)};background:${roleSoft(u.role)}">${t('role_'+u.role)}</span></span></div>
+    <div class="setrow"><span>${t('theme')}</span>
+      <span class="seg">
+        <button data-a="setTheme" data-id="dark" class="${APPTHEME==='dark'?'on':''}">${t('dark')}</button>
+        <button data-a="setTheme" data-id="light" class="${APPTHEME==='light'?'on':''}">${t('light')}</button></span></div>
+    <div class="setrow"><span>${t('language')}</span>
+      <span class="seg">
+        <button data-a="setLang" data-id="es" class="${LANG==='es'?'on':''}">Español</button>
+        <button data-a="setLang" data-id="en" class="${LANG==='en'?'on':''}">English</button></span></div>
+    <div class="setrow"><span>${t('push_demo')}<br><span style="font-size:11.5px;color:var(--faint)">${t('push_demo_sub')}</span></span>
+      <span class="seg">
+        <button data-a="setPush" data-id="1" class="${state.pushDemo?'on':''}">ON</button>
+        <button data-a="setPush" data-id="0" class="${!state.pushDemo?'on':''}">OFF</button></span></div>
+    <button class="btn btn-danger" style="margin-top:16px" data-a="logout">${ic('logout')} ${t('logout')}</button>`);
+}
+
+/* ============================ ACTIONS ============================ */
+function statusChange(x, to, byUser){
+  const from = x.status; x.status = to;
+  pushEvent(x, {ty:'STATUS', u:byUser, from, to});
+}
+function leaders(){ return USERS.filter(u=>u.role!=='DEVELOPER').map(u=>u.id); }
+
+function doAssign(){
+  const c = sheetCtx; if(!c || !c.picked) return;
+  const x = tk(c.ticket); const to = c.picked;
+  x.assignee = to; if (x.status==='REDIRECTED') x.status='TODO';
+  pushEvent(x, {ty:'ASSIGNED', u:state.user.id, to});
+  addNotif([to], 'ASSIGNMENT', {k:'assigned_you', by:state.user.id, tk:x.id}, {t:'ticket', id:x.id});
+  closeSheet(); render();
+}
+function doComplete(){
+  const c = sheetCtx; const x = tk(c.ticket);
+  const url = $('#prin').value.trim();
+  if (!/^https:\/\/(www\.)?(github\.com|gitlab\.com|bitbucket\.org)\/\S+/i.test(url)){ $('#prerr').classList.add('show'); return; }
+  x.pr = url; x.running = false;
+  statusChange(x, 'DONE', state.user.id);
+  pushEvent(x, {ty:'COMPLETED', u:state.user.id});
+  addNotif(leaders(), 'COMPLETION', {k:'completed_in', by:state.user.id, app:appOfTicket(x).id, tk:x.id}, {t:'ticket', id:x.id});
+  closeSheet(); fireConfetti(); render();
+}
+function doQuestion(){
+  const c = sheetCtx; const x = tk(c.ticket);
+  const txt = $('#qin').value.trim();
+  if (txt.length < 10){ $('#qerr').classList.add('show'); return; }
+  x.running = false;
+  statusChange(x, 'BLOCKED', state.user.id);
+  pushEvent(x, {ty:'QUESTION', u:state.user.id, txt});
+  addNotif(leaders(), 'QUESTION', {k:'asked_in', by:state.user.id, app:appOfTicket(x).id, tk:x.id}, {t:'ticket', id:x.id});
+  closeSheet(); render();
+}
+function doResume(){
+  const c = sheetCtx; const x = tk(c.ticket);
+  const txt = $('#rsin').value.trim() || '—';
+  statusChange(x, 'IN_PROGRESS', state.user.id);
+  pushEvent(x, {ty:'RESOLVED', u:state.user.id, txt});
+  x.running = true;
+  closeSheet(); render();
+}
+function doRedirect(){
+  const c = sheetCtx; const x = tk(c.ticket);
+  const txt = $('#rdin').value.trim();
+  if (!c.picked) return;
+  if (txt.length < 10){ $('#rderr').classList.add('show'); return; }
+  x.running = false; x.assignee = c.picked; x.status = 'REDIRECTED';
+  pushEvent(x, {ty:'REDIRECTED', u:state.user.id, to:c.picked, txt});
+  addNotif([c.picked, ...leaders()].filter(id=>id!==state.user.id), 'REDIRECT', {k:'assigned_you', by:state.user.id, tk:x.id}, {t:'ticket', id:x.id});
+  closeSheet(); back();
+}
+function doNewTicket(){
+  const c = sheetCtx;
+  const title = $('#ntin').value.trim();
+  if (title.length < 5){ $('#nterr').classList.add('show'); return; }
+  const x = {id:'t'+Math.random().toString(36).slice(2,7), num:++TKN, epicId:c.epic, title, desc:title,
+    status:'TODO', priority:$('#ntprio').value, assignee:c.picked||null, createdBy:state.user.id,
+    due:Date.now()+7*86400e3, spent:0, blocked:0, subtasks:[], events:[]};
+  pushEvent(x, {ty:'CREATED', u:state.user.id});
+  TICKETS.push(x);
+  const a = appOfTicket(x);
+  if (c.picked){
+    pushEvent(x, {ty:'ASSIGNED', u:state.user.id, to:c.picked});
+    addNotif([c.picked], 'ASSIGNMENT', {k:'assigned_you', by:state.user.id, tk:x.id}, {t:'ticket', id:x.id});
+  }
+  addNotif(leaders().filter(id=>id!==state.user.id), 'SYSTEM', {k:'tk_new_in', by:state.user.id, app:a.id, tk:x.id}, {t:'ticket', id:x.id});
+  closeSheet(); render();
+}
+function doIncAssign(){
+  const c = sheetCtx; if(!c.picked) return;
+  const i = inc(c.incident);
+  i.assignee = c.picked; i.status = 'IN_PROGRESS';
+  addNotif([c.picked], 'ASSIGNMENT', {k:'assigned_you', by:state.user.id, tk:null, inc:i.id}, {t:'incident', id:i.id});
+  closeSheet(); render();
+}
+
+/* ============================ CONFETTI ============================ */
+function fireConfetti(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = $('#confetti'), ctx = cv.getContext('2d');
+  const W = cv.width = cv.offsetWidth, H = cv.height = cv.offsetHeight;
+  const cols = ['#4C8DFF','#2FBF71','#F2A93B','#F0554E','#8B7CF6'];
+  const ps = Array.from({length:110}, ()=>({x:W/2, y:H*0.55, vx:(Math.random()-.5)*11, vy:-(4+Math.random()*9),
+    s:4+Math.random()*5, c:cols[Math.random()*cols.length|0], r:Math.random()*Math.PI, vr:(Math.random()-.5)*.3}));
+  let f = 0;
+  (function loop(){
+    ctx.clearRect(0,0,W,H); f++;
+    for (const p of ps){ p.x+=p.vx; p.y+=p.vy; p.vy+=.28; p.r+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.globalAlpha=Math.max(0,1-f/90);
+      ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6); ctx.restore(); }
+    if (f<95) requestAnimationFrame(loop); else ctx.clearRect(0,0,W,H);
+  })();
+}
+
+/* ============================ THEME / LANG ============================ */
+let APPTHEME = 'dark';
+function setTheme(v){ APPTHEME = v; $('#phone').dataset.apptheme = v; sheetSettings(); render(); }
+function setLangFn(v){ LANG = v; sheetSettings(); render(); }
+
+/* ============================ SIMULACIÓN DE EVENTOS EN VIVO ============================ */
+const SIM = [
+  {done:false, run(){ // Sofía reporta una incidencia nueva
+    const i = {id:'i'+Math.random().toString(36).slice(2,6), num:++INCN, appId:'a2',
+      title:'Error 500 al exportar el informe mensual de conciliación', desc:'Al exportar el informe de conciliación de agosto, el servidor devuelve 500. Ocurre solo con rangos superiores a 31 días.',
+      category:'CRITICAL_ERROR', severity:'HIGH', status:'OPEN', reporter:'u4', assignee:null, ts:Date.now(), comments:[]};
+    INCIDENTS.push(i);
+    addNotif(leaders(), 'INCIDENT', {k:'inc_new_by', by:'u4', app:'a2', inc:i.id}, {t:'incident', id:i.id});
+    if (['incidents'].includes(state.view.n)) render();
+  }},
+  {done:false, run(){ // Luis crea un ticket nuevo y lo asigna a Diego
+    const x = {id:'tsim1', num:++TKN, epicId:'e1', title:'Añadir verificación 2FA por SMS como alternativa', desc:'Ofrecer SMS como segundo factor alternativo al TOTP para usuarios sin smartphone.',
+      status:'TODO', priority:'MEDIUM', assignee:'u3', createdBy:'u2', due:Date.now()+6*86400e3, spent:0, blocked:0,
+      subtasks:[{t:'Integración con proveedor SMS',done:false}], events:[]};
+    pushEvent(x,{ty:'CREATED',u:'u2'}); pushEvent(x,{ty:'ASSIGNED',u:'u2',to:'u3'});
+    TICKETS.push(x);
+    addNotif(['u3'], 'ASSIGNMENT', {k:'assigned_you', by:'u2', tk:x.id}, {t:'ticket', id:x.id});
+    addNotif(['u1'], 'SYSTEM', {k:'tk_new_in', by:'u2', app:'a1', tk:x.id}, {t:'ticket', id:x.id});
+    if (['projects','project','home'].includes(state.view.n)) render();
+  }},
+  {done:false, run(){ // Marco completa el mapa en vivo
+    const x = tk('t8'); if(!x || x.status==='DONE'){ this.done=true; return; }
+    x.status='DONE'; x.running=false; x.pr='https://github.com/wellq/logistica/pull/238';
+    pushEvent(x,{ty:'COMPLETED',u:'u5'});
+    addNotif(leaders(), 'COMPLETION', {k:'completed_in', by:'u5', app:'a3', tk:'t8'}, {t:'ticket', id:'t8'});
+    if (['home','projects','project','ticket'].includes(state.view.n)) render();
+  }},
+  {done:false, run(){ // Sofía plantea una pregunta en el matching SEPA
+    const x = tk('t5'); if(!x || x.status!=='IN_PROGRESS'){ this.done=true; return; }
+    x.status='BLOCKED'; x.running=false;
+    pushEvent(x,{ty:'QUESTION',u:'u4',txt:'¿La tolerancia de ±0,01 € aplica también a pagos agrupados de varias facturas?'});
+    addNotif(leaders(), 'QUESTION', {k:'asked_in', by:'u4', app:'a2', tk:'t5'}, {t:'ticket', id:'t5'});
+    if (['home','projects','project','ticket'].includes(state.view.n)) render();
+  }},
+];
+let simIdx = 0;
+setInterval(()=>{
+  if (!state.user || !state.pushDemo) return;
+  for (let k=0; k<SIM.length; k++){
+    const ev = SIM[simIdx % SIM.length]; simIdx++;
+    if (!ev.done){ ev.done = true; ev.run(); break; }
+  }
+}, 20000);
+
+/* Timer global: los tickets "running" acumulan tiempo */
+setInterval(()=>{
+  let tick = false;
+  for (const x of TICKETS){ if (x.running && x.status==='IN_PROGRESS'){ x.spent++; tick=true; } 
+    if (x.status==='BLOCKED') x.blocked++; }
+  if (tick && state.view.n==='ticket'){
+    const x = tk(state.view.id);
+    const el = $('#timerval');
+    if (x && el && x.running) el.textContent = fmtTimer(x.spent);
+  }
+}, 1000);
+
+/* Reloj de la barra de estado */
+function clockTick(){ const d=new Date(); $('#clock').textContent = String(d.getHours())+':'+String(d.getMinutes()).padStart(2,'0'); }
+clockTick(); setInterval(clockTick, 15000);
+
+/* ============================ EVENT DELEGATION ============================ */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]');
+  if (!b) return;
+  const a = b.dataset.a, id = b.dataset.id;
+  switch(a){
+    case 'login': state.user = U(id); state.tab='home'; state.stack=[]; state.view={n:'home'}; render(); break;
+    case 'logout': closeSheet(); state.user=null; state.view={n:'login'}; state.stack=[]; render(); break;
+    case 'tab': setTab(id); break;
+    case 'back': back(); break;
+    case 'notifs': if(state.view.n!=='notifs') go({n:'notifs'}); break;
+    case 'settings': sheetSettings(); break;
+    case 'project': go({n:'project', id}); break;
+    case 'ticket': go({n:'ticket', id}); break;
+    case 'incident': go({n:'incident', id}); break;
+    case 'incf': state.incf = id; render(); break;
+    case 'openNotif': { const n = NOTIFS.find(x=>x.id===id); if(n){ n.read=true; openLink(n.link);} break; }
+    case 'readAll': myNotifs().forEach(n=>n.read=true); render(); break;
+    case 'toggleSub': { const x = tk(id); const s = x.subtasks[+b.dataset.i]; s.done=!s.done; render(); break; }
+    case 'assignSheet': sheetAssign(tk(id)); break;
+    case 'completeSheet': sheetComplete(tk(id)); break;
+    case 'questionSheet': sheetQuestion(tk(id)); break;
+    case 'redirectSheet': sheetRedirect(tk(id)); break;
+    case 'resumeSheet': sheetResume(tk(id)); break;
+    case 'newTicketSheet': sheetNewTicket(id); break;
+    case 'incAssignSheet': sheetIncAssign(inc(id)); break;
+    case 'pickUser': markPicked(id); break;
+    case 'doAssign': doAssign(); break;
+    case 'doComplete': doComplete(); break;
+    case 'doQuestion': doQuestion(); break;
+    case 'doResume': doResume(); break;
+    case 'doRedirect': doRedirect(); break;
+    case 'doNewTicket': doNewTicket(); break;
+    case 'doIncAssign': doIncAssign(); break;
+    case 'incTake': { const i = inc(id); i.assignee = state.user.id; i.status='IN_PROGRESS'; render(); break; }
+    case 'incStatus': { const i = inc(id); i.status = b.dataset.s; render(); break; }
+    case 'startWork': { const x = tk(id); statusChange(x,'IN_PROGRESS',state.user.id); x.running = true; render(); break; }
+    case 'setTheme': setTheme(id); break;
+    case 'setLang': setLangFn(id); break;
+    case 'setPush': state.pushDemo = id==='1'; sheetSettings(); break;
+    case 'closeSheet': closeSheet(); break;
+  }
+});
+
+/* init */
+render();
+</script>

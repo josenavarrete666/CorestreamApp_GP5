@@ -1,0 +1,54 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+.pub-cache/
+.pub/
+node_modules/
+.cache/
+movil/android/local.properties
+movil/android/.gradle/
+movil/android/captures/
+*.jks
+*.keystore
+key.properties
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+*.egg-info/
+htmlcov/
+*.sqlite3
+
+# Local configuration and generated data
+.env
+.env.*
+!.env.example
+!.env.*.example
+.tools/
+.verification/
+backend/.local/
+/commands.txt
+storage/
+backups/
+database/postgresql/data/
+database/postgresql/logs/
+coverage/
+*.log
+
+# Editors and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.swp
